@@ -12,13 +12,13 @@ const Tracker = () => {
 
     return (
         <div>
-        <div className="p-field">
-            <label htmlFor="toggle">ENABLE MIS VIEW</label>
-            <InputSwitch id="toggle" checked={showMasterComponent} onChange={handleToggleChange} />
-        </div>
+            <div className="p-field">
+                {/* <label htmlFor="toggle">ENABLE MIS VIEW</label> */}
+                <InputSwitch id="toggle" checked={showMasterComponent} onChange={handleToggleChange} />
+            </div>
 
-        {showMasterComponent ? <MasterView /> : <AllTestView />}
-    </div>
+            {showMasterComponent ? <MasterView /> : <AllTestView />}
+        </div>
     );
 };
 

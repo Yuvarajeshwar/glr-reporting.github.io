@@ -510,7 +510,7 @@ export default function AllTestView() {
   );
 
   return (
-    <div className="card">
+    <div>
       <DataTable
         showGridlines
         value={products}
