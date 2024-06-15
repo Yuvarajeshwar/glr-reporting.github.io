@@ -21,14 +21,69 @@ export default function AllTestView() {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState("");
   const dt = useRef(null);
+  const toast = useRef(null);
 
   const exportCSV = (selectionOnly) => {
     dt.current.exportCSV({ selectionOnly });
 };
 
   useEffect(() => {
-    ProductService.getProductsWithOrders().then((data) => setProducts(data));
+    const fetchData = async () => {
+      try {
+          // Fetch data from all endpoints concurrently
+          const [sdResponse, qaResponse, mailResponse, edpResponse, accountsResponse, studyResponse] = await Promise.all([
+              fetch('http://localhost:3030/sd/'),
+              fetch('http://localhost:3030/qa/'),
+              fetch('http://localhost:3030/mailCommunication/'),
+              fetch('http://localhost:3030/edp/'),
+              fetch('http://localhost:3030/accounts/'),
+              fetch('http://localhost:3030/study/')
+          ]);
+  
+          // Extract JSON data from responses
+          const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
+              sdResponse.json(),
+              qaResponse.json(),
+              mailResponse.json(),
+              edpResponse.json(),
+              accountsResponse.json(),
+              studyResponse.json()
+          ]);
+  
+          // Create maps for faster lookup
+          const qaMap = new Map(qaResult.map(item => [item.study_id, item]));
+          const mailMap = new Map(mailResult.map(item => [item.study_id, item]));
+          const edpMap = new Map(edpResult.map(item => [item.study_id, item]));
+          const accountsMap = new Map(accountsResult.map(item => [item.study_id, item]));
+          const sdMap = new Map(sdResult.map(item => [item.study_id, item]));
+          
+          const consolidation = studyResult.map(studyItem => ({
+            ...studyItem,
+            ...qaMap.get(studyItem.id) || {}, // Merge with QA data if available
+            ...mailMap.get(studyItem.id) || {}, // Merge with Mail data if available
+            ...edpMap.get(studyItem.id) || {}, // Merge with EDP data if available
+            ...accountsMap.get(studyItem.id) || {}, // Merge with Accounts data if available
+            ...sdMap.get(studyItem.id) || {},
+          }))
+          // Combine data from all endpoints based on study_id
+          // const consolidation = sdResult.map(sdItem => ({
+          //     ...sdItem,
+          //     ...qaMap.get(sdItem.study_id) || {}, // Merge with QA data if available
+          //     ...mailMap.get(sdItem.study_id) || {}, // Merge with Mail data if available
+          //     ...edpMap.get(sdItem.study_id) || {}, // Merge with EDP data if available
+          //     ...accountsMap.get(sdItem.study_id) || {}, // Merge with Accounts data if available
+          //     ...studyMap.get(sdItem.study_id) || {},
+          // }));
+  
+          // Set consolidated data to state
+          setProducts(consolidation);
+      } catch (error) {
+          console.error('Error fetching data:', error);
+      }
+  };
+  
     initFilters();
+    fetchData();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const columns = [
@@ -37,6 +92,7 @@ export default function AllTestView() {
       header: "Study Number",
       type: "text",
       sortable: "true",
+      department: "study",
     },
     { field: "sponsor", header: "Sponsor", type: "text", sortable: "true" },
     {
@@ -44,6 +100,7 @@ export default function AllTestView() {
       header: "Study Director",
       type: "text",
       sortable: "true",
+      department: "study",
     },
     { field: "test_name", header: "Test Name", type: "text", sortable: false },
     {
@@ -51,6 +108,7 @@ export default function AllTestView() {
       header: "Study Title",
       type: "text",
       sortable: false,
+      department: "study",
     },
     ,	
     {
@@ -58,36 +116,42 @@ export default function AllTestView() {
       header: "Sample Received",
       type: "date",
       sortable: false,
+      department: "tico",
     },
     {
       field: "tids_received_dttm",
       header: "TIDS Received",
       type: "date",
       sortable: false,
+      department: "tico",
     },
     {
       field: "scope_approval_dttm",
       header: "Scope Approved",
       type: "date",
       sortable: false,
+      department: "tico",
     },
     {
       field: "sd_allotment_yaminy_to_qa",
       header: "SD Allotment Yaminy to QA",
       type: "date",
       sortable: false,
+      department: "edp",
     },
     {
       field: "study_alloted_to_qa",
       header: "Study Alloted to QA",
       type: "date",
       sortable: false,
+      department: "edp",
     },
     {
       field: "study_plan_prepared_by",
       header: "Study plan prepared by",
       type: "text",
       sortable: false,
+      department: "edp",
     },
     { field: "study_plan_prepared_on", header: "Study Plan prepared on", type: "date" },
     {
@@ -95,109 +159,127 @@ export default function AllTestView() {
       header: "Study Plan to SD",
       type: "date",
       sortable: false,
+      department: "edp",
     },
     {
       field: "definitive_study_plan_taken",
       header: "Definitive Study Plan taken",
       type: "date",
       sortable: false,
+      department: "edp",
     },
     {
       field: "definitive_study_plan_sent_to_qa",
       header: "Definitive study Plan taken to QA(PDF)",
       type: "date",
       sortable: false,
+      department: "edp",
     },	
     {
       field: "final_report_taken",
       header: "Final Report taken",
       type: "date",
       sortable: false,
+      department: "edp",
     },
     {
       field: "final_report_to_qa",
       header: "Final Report to QA",
       type: "date",
       sortable: false,
+      department: "edp",
     },
     {
       field: "hard_copies_sent",
       header: "Hard Copies sent",
       type: "date",
       sortable: false,
+      department: "edp",
     },
-    { field: "scope", header: "Scope", type: "text" },
+    { field: "scope", header: "Scope", type: "text", department: "sd", },
     {
       field: "draft_study_plan_to_qa",
       header: "Draft Study Plan to QA",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "corrected_draft_study_plan_qa",
       header: "Corrected Draft Study Plan to QA",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "study_initiation",
       header: "Study initiaton",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "experiment_start_date",
       header: "Experiment Start",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "experiment_complete_date",
       header: "Experiment End",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "draft_report_commited_to_qa",
       header: "Draft report committed to QA",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "draft_report_commited_to_sponsor",
       header: "Draft report to Sponsor",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "draft_report_completion",
       header: "Draft report completion",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "draft_report_to_qa",
       header: "Draft report to QA",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "corrected_draft_report_to_qa",
       header: "Corrected Draft Report to QA",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "study_completion",
       header: "Study completion",
       type: "date",
       sortable: false,
+      department: "sd",
     },
     {
       field: "tids_issued_to_yaminy",
       header: "TIDS issues to Yaminy",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
 
     {
@@ -205,138 +287,161 @@ export default function AllTestView() {
       header: "Direct Reports",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "corrected_draft_study_plan_to_sponsor",
       header: "Corrected Draft Study Plan To Sponsor",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "approval_for_corrected_draft_study_plan_received",
       header: "Approval for Corrected Draft Study plan received",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "corrected_draft_study_plan_comments_to_sd",
       header: "Corrected Draft Study Plan Comments to SD",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "definitive_plan_to_sponsor",
       header: "Definitive plan to Sponsor",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "definitive_study_plan_sponsor_approval",
       header: "Definitive plan sponsor approval",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "definitive_study_plan_comments_to_sd",
       header: "Definitive plan comments to SD",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "draft_report_to_sponsor",
       header: "Draft report to Sponsor",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "draft_report_sponsor_reply",
       header: "Draft report Sponsor Reply",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "draft_report_comments_to_sd",
       header: "Draft report comments to SD",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "corrected_draft_report_to_sponsor",
       header: "Corrected Draft report to Sponsor",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "corrected_draft_report_sponsor_reply",
       header: "Corrected Draft report Sponsor reply",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "corrected_draft_report_comments_to_sd",
       header: "Corrected Draft Report to SD",
       type: "date",
       sortable: false,
+      department: "mailCommunication",
     },
     {
       field: "draft_study_plan_to_yaminy_by_qa",
       header: "Draft SP to Yaminy by QA",
       type: "date",
       sortable: false,
+      department: "qa",
     },
     {
       field: "corrected_draft_study_plan_to_yaminy_by_qa",
       header: "Corrected Draft SP to Yaminy by QA",
       type: "date",
       sortable: false,
+      department: "qa",
     },
     {
       field: "definitive_study_plan_to_yaminy_by_qa",
       header: "Definitive SP to Yaminy by QA",
       type: "date",
       sortable: false,
+      department: "qa",
     },
     {
       field: "draft_report_to_yaminy_by_qa",
       header: "Draft Report to Yaminy by QA",
       type: "date",
       sortable: false,
+      department: "qa",
     },
     {
       field: "corrected_draft_report_to_yaminy_by_qa",
       header: "Corrected Draft Report to Yaminy by QA",
       type: "date",
       sortable: false,
+      department: "qa",
     },
     {
       field: "final_report_to_yaminy",
       header: "Final Report to Yaminy",
       type: "date",
       sortable: false,
+      department: 'qa',
     },
     {
       field: "invoice_number",
       header: "Invoice Number",
       type: "text",
       sortable: false,
+      department: "accounts",
     },
     {
       field: "invoice_date",
       header: "Invoice Date (Date)",
       type: "date",
       sortable: false,
+      department: "accounts",
     },
     {
       field: "payment_received_in_percent",
       header: "Payment Receipt(%)",
       type: "text",
       sortable: false,
+      department: "accounts",
     },
     {
       field: "final_invoice",
       header: "Final Invoice (Date)",
       type: "date",
       sortable: false,
+      department: "accounts",
     }
   ];
 
@@ -361,37 +466,85 @@ export default function AllTestView() {
     setGlobalFilterValue("");
   };
 
-  const onCellEditComplete = (e) => {
-    let { rowData, newValue, field, originalEvent: event } = e;
-    const study_number = rowData.study_number;
-    console.log(
-      "update table_name set " +
-        field +
-        " = " +
-        newValue +
-        " where study_number = " +
-        study_number
-    );
-    switch (field) {
-      case "quantity":
-      case "price":
-        if (isPositiveInteger(newValue)) rowData[field] = newValue;
-        else event.preventDefault();
-        break;
+  // Define the function to send the POST request
+async function sendData(id, data, department) {
+  console.log('This method is called', department)
+  const raw = JSON.stringify(data);
+  try {
+    const response = await fetch(`http://localhost:3030/${department}/${id}`, {
+        method: 'PUT', // Specify the request method
+      headers: {
+        'Content-Type': 'application/json' // Specify the content type as JSON
+      },
+      body: raw // Convert the id and data to a JSON string
+    });
 
-      default:
-        if (newValue.trim().length > 0) rowData[field] = newValue;
-        else event.preventDefault();
-        break;
+    if (!response.ok) {
+      toast.current.show({ severity: 'error', summary: 'Info', detail: 'Update Failed. Please try again.' });
+      throw new Error('Network response was not ok');
     }
+
+    const result = await response.json(); // Parse the JSON response
+    console.log('Success:', result);
+    toast.current.show({ severity: 'success', summary: 'Info', detail: 'Update Successful' });
+    return result;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+  function getDepartmentByField(field) {
+    console.log(field)
+    console.log(columns)
+    // Find the column that matches the given field
+    // const column = columns.find(col => col[0].field === field);
+    for (const column of columns) {
+      if (column && column.field === field) {
+          return column.department || 'Field does not have a department';
+      }
+  }
+    // Return the department if found, otherwise return null or undefined
+    // return column ? column.department : null;
+    return 'Field not found';
+  }
+
+  const onCellEditComplete = async (e) => {
+    let { rowData, newValue, field, originalEvent: event } = e;
+    const study_number = rowData.id;
+    const department = getDepartmentByField(field)
+    console.log(rowData)
+    console.log(newValue)
+    const data = {
+      [field]: newValue
+  };
+    const res = await sendData(study_number, data, department);
+    console.log(res)
   };
 
-  const updateDate = (id, field, newDate) => {
-    setProducts((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, [field]: newDate } : item
-      )
-    );
+  function formatDate(dateString) {
+    // Parse the input date string to a Date object
+    const date = new Date(dateString);
+
+    // Get the year, month, and day
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() returns 0-11
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Return the formatted date string
+    return `${year}-${month}-${day}`;
+}
+
+  const updateDate = async (id, field, newDate) => {
+    console.log(id)
+    console.log(field)
+    console.log(newDate)
+    const department = getDepartmentByField(field)
+    const requestDate = formatDate(newDate)
+    const data = {
+      [field]: requestDate
+    };
+
+    const res = await sendData(id, data, department);
+    console.log(res)
   };
 
   const parseDate = (dateStr) => {
@@ -405,7 +558,7 @@ export default function AllTestView() {
       dateStr = `${day}/${month}/${year}`;
     }
 
-    const [day, month, year] = dateStr.split("/").map(Number);
+    const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   };
 
@@ -511,6 +664,7 @@ export default function AllTestView() {
 
   return (
     <div>
+      <Toast ref={toast} />
       <DataTable
         showGridlines
         value={products}
@@ -534,6 +688,7 @@ export default function AllTestView() {
               header={header}
               field={field}
               body={(rowData) => dateTemplate(rowData, field)}
+              onCellEditComplete={onCellEditComplete}
             />
           ) : (
             <Column
