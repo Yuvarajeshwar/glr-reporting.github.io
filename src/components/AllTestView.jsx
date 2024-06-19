@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { ProductService } from "../service/AllTestService";
 import { InputText } from "primereact/inputtext";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
-import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup";
 import { Toast } from "primereact/toast";
 import { Dropdown } from "primereact/dropdown";
 import { IconField } from "primereact/iconfield";
@@ -15,11 +13,21 @@ import { Calendar } from "primereact/calendar";
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
 import { Tag } from "primereact/tag";
+import './AllTestView.css'
 
 export default function AllTestView() {
   const [products, setProducts] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
-  const [filters, setFilters] = useState("");
+  // const [filters, setFilters] = useState("");
+  const [filters, setFilters] = useState({
+    // global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    study_number: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    // 'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    // representative: { value: null, matchMode: FilterMatchMode.IN },
+    sponsor: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    sd_name: { value: null, matchMode: FilterMatchMode.STARTS_WITH }
+});
+
   const dt = useRef(null);
   const toast = useRef(null);
 
@@ -59,22 +67,12 @@ export default function AllTestView() {
           
           const consolidation = studyResult.map(studyItem => ({
             ...studyItem,
-            ...qaMap.get(studyItem.id) || {}, // Merge with QA data if available
-            ...mailMap.get(studyItem.id) || {}, // Merge with Mail data if available
-            ...edpMap.get(studyItem.id) || {}, // Merge with EDP data if available
-            ...accountsMap.get(studyItem.id) || {}, // Merge with Accounts data if available
+            ...qaMap.get(studyItem.id) || {},
+            ...mailMap.get(studyItem.id) || {},
+            ...edpMap.get(studyItem.id) || {},
+            ...accountsMap.get(studyItem.id) || {},
             ...sdMap.get(studyItem.id) || {},
           }))
-          // Combine data from all endpoints based on study_id
-          // const consolidation = sdResult.map(sdItem => ({
-          //     ...sdItem,
-          //     ...qaMap.get(sdItem.study_id) || {}, // Merge with QA data if available
-          //     ...mailMap.get(sdItem.study_id) || {}, // Merge with Mail data if available
-          //     ...edpMap.get(sdItem.study_id) || {}, // Merge with EDP data if available
-          //     ...accountsMap.get(sdItem.study_id) || {}, // Merge with Accounts data if available
-          //     ...studyMap.get(sdItem.study_id) || {},
-          // }));
-  
           // Set consolidated data to state
           setProducts(consolidation);
       } catch (error) {
@@ -92,23 +90,24 @@ export default function AllTestView() {
       header: "Study Number",
       type: "text",
       sortable: "true",
-      department: "study",
+      department: "STUDY",
+      freeze: "true"
     },
-    { field: "sponsor", header: "Sponsor", type: "text", sortable: "true" },
+    { field: "sponsor", header: "Sponsor", type: "text", sortable: "true", department: "MAIL COMMUNICATION" },
     {
       field: "sd_name",
       header: "Study Director",
       type: "text",
       sortable: "true",
-      department: "study",
+      department: "STUDY",
     },
-    { field: "test_name", header: "Test Name", type: "text", sortable: false },
+    { field: "test_name", header: "Test Name", type: "text", sortable: false, department: "MAIL COMMUNICATION" },
     {
       field: "study_title",
       header: "Study Title",
       type: "text",
       sortable: false,
-      department: "study",
+      department: "STUDY",
     },
     ,	
     {
@@ -116,333 +115,372 @@ export default function AllTestView() {
       header: "Sample Received",
       type: "date",
       sortable: false,
-      department: "tico",
+      department: "TICO",
     },
     {
       field: "tids_received_dttm",
       header: "TIDS Received",
       type: "date",
       sortable: false,
-      department: "tico",
+      department: "TICO",
     },
     {
       field: "scope_approval_dttm",
       header: "Scope Approved",
       type: "date",
       sortable: false,
-      department: "tico",
+      department: "TICO",
     },
-    {
-      field: "sd_allotment_yaminy_to_qa",
-      header: "SD Allotment Yaminy to QA",
-      type: "date",
-      sortable: false,
-      department: "edp",
-    },
-    {
-      field: "study_alloted_to_qa",
-      header: "Study Alloted to QA",
-      type: "date",
-      sortable: false,
-      department: "edp",
-    },
-    {
-      field: "study_plan_prepared_by",
-      header: "Study plan prepared by",
-      type: "text",
-      sortable: false,
-      department: "edp",
-    },
-    { field: "study_plan_prepared_on", header: "Study Plan prepared on", type: "date" },
-    {
-      field: "study_plan_to_sd",
-      header: "Study Plan to SD",
-      type: "date",
-      sortable: false,
-      department: "edp",
-    },
-    {
-      field: "definitive_study_plan_taken",
-      header: "Definitive Study Plan taken",
-      type: "date",
-      sortable: false,
-      department: "edp",
-    },
-    {
-      field: "definitive_study_plan_sent_to_qa",
-      header: "Definitive study Plan taken to QA(PDF)",
-      type: "date",
-      sortable: false,
-      department: "edp",
-    },	
-    {
-      field: "final_report_taken",
-      header: "Final Report taken",
-      type: "date",
-      sortable: false,
-      department: "edp",
-    },
-    {
-      field: "final_report_to_qa",
-      header: "Final Report to QA",
-      type: "date",
-      sortable: false,
-      department: "edp",
-    },
-    {
-      field: "hard_copies_sent",
-      header: "Hard Copies sent",
-      type: "date",
-      sortable: false,
-      department: "edp",
-    },
-    { field: "scope", header: "Scope", type: "text", department: "sd", },
-    {
-      field: "draft_study_plan_to_qa",
-      header: "Draft Study Plan to QA",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "corrected_draft_study_plan_qa",
-      header: "Corrected Draft Study Plan to QA",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "study_initiation",
-      header: "Study initiaton",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "experiment_start_date",
-      header: "Experiment Start",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "experiment_complete_date",
-      header: "Experiment End",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "draft_report_commited_to_qa",
-      header: "Draft report committed to QA",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "draft_report_commited_to_sponsor",
-      header: "Draft report to Sponsor",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "draft_report_completion",
-      header: "Draft report completion",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "draft_report_to_qa",
-      header: "Draft report to QA",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "corrected_draft_report_to_qa",
-      header: "Corrected Draft Report to QA",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "study_completion",
-      header: "Study completion",
-      type: "date",
-      sortable: false,
-      department: "sd",
-    },
-    {
-      field: "tids_issued_to_yaminy",
-      header: "TIDS issues to Yaminy",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-
-    {
-      field: "direct_reports",
-      header: "Direct Reports",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "corrected_draft_study_plan_to_sponsor",
-      header: "Corrected Draft Study Plan To Sponsor",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "approval_for_corrected_draft_study_plan_received",
-      header: "Approval for Corrected Draft Study plan received",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "corrected_draft_study_plan_comments_to_sd",
-      header: "Corrected Draft Study Plan Comments to SD",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "definitive_plan_to_sponsor",
-      header: "Definitive plan to Sponsor",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "definitive_study_plan_sponsor_approval",
-      header: "Definitive plan sponsor approval",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "definitive_study_plan_comments_to_sd",
-      header: "Definitive plan comments to SD",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "draft_report_to_sponsor",
-      header: "Draft report to Sponsor",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "draft_report_sponsor_reply",
-      header: "Draft report Sponsor Reply",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "draft_report_comments_to_sd",
-      header: "Draft report comments to SD",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "corrected_draft_report_to_sponsor",
-      header: "Corrected Draft report to Sponsor",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "corrected_draft_report_sponsor_reply",
-      header: "Corrected Draft report Sponsor reply",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "corrected_draft_report_comments_to_sd",
-      header: "Corrected Draft Report to SD",
-      type: "date",
-      sortable: false,
-      department: "mailCommunication",
-    },
-    {
-      field: "draft_study_plan_to_yaminy_by_qa",
-      header: "Draft SP to Yaminy by QA",
-      type: "date",
-      sortable: false,
-      department: "qa",
-    },
-    {
-      field: "corrected_draft_study_plan_to_yaminy_by_qa",
-      header: "Corrected Draft SP to Yaminy by QA",
-      type: "date",
-      sortable: false,
-      department: "qa",
-    },
-    {
-      field: "definitive_study_plan_to_yaminy_by_qa",
-      header: "Definitive SP to Yaminy by QA",
-      type: "date",
-      sortable: false,
-      department: "qa",
-    },
-    {
-      field: "draft_report_to_yaminy_by_qa",
-      header: "Draft Report to Yaminy by QA",
-      type: "date",
-      sortable: false,
-      department: "qa",
-    },
-    {
-      field: "corrected_draft_report_to_yaminy_by_qa",
-      header: "Corrected Draft Report to Yaminy by QA",
-      type: "date",
-      sortable: false,
-      department: "qa",
-    },
-    {
-      field: "final_report_to_yaminy",
-      header: "Final Report to Yaminy",
-      type: "date",
-      sortable: false,
-      department: 'qa',
-    },
-    {
-      field: "invoice_number",
-      header: "Invoice Number",
-      type: "text",
-      sortable: false,
-      department: "accounts",
-    },
-    {
-      field: "invoice_date",
-      header: "Invoice Date (Date)",
-      type: "date",
-      sortable: false,
-      department: "accounts",
-    },
-    {
-      field: "payment_received_in_percent",
-      header: "Payment Receipt(%)",
-      type: "text",
-      sortable: false,
-      department: "accounts",
-    },
-    {
-      field: "final_invoice",
-      header: "Final Invoice (Date)",
-      type: "date",
-      sortable: false,
-      department: "accounts",
-    }
+      {
+        field: "tids_issued_to_yaminy",
+        header: "TIDS Issued to Yaminy",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "invoice_number",
+        header: "Invoice Number",
+        type: "text",
+        sortable: false,
+        department: "accounts"
+      },
+      {
+        field: "invoice_date",
+        header: "Invoice Date",
+        type: "date",
+        sortable: false,
+        department: "accounts"
+      },
+      {
+        field: "payment_received_in_percent",
+        header: "Payment Received In %",
+        type: "text",
+        sortable: false,
+        department: "accounts"
+      },
+      {
+        field: "scope",
+        header: "Scope",
+        type: "text",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "direct_reports",
+        header: "Direct Reports",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "sd_allotment_yaminy_to_qa",
+        header: "SD Allotment Yaminy Issued to QA (Date & Time)",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "study_alloted_to_qa",
+        header: "Study Alloted by QA (Date & Time)",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "study_plan_prepared_by",
+        header: "Study Plan Prepared by",
+        type: "text",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "study_plan_prepared_on",
+        header: "Study Plan Prepared (Date)",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "study_plan_to_sd",
+        header: "Study plan Hand over to SD (Date)",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "draft_study_plan_to_qa",
+        header: "Draft Study Plan Sent to QA (Date & Time)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "draft_study_plan_to_yaminy_by_qa",
+        header: "Draft Study Plan Sent to Yaminy by QA (Date)",
+        type: "date",
+        sortable: false,
+        department: "QA"
+      },
+      {
+        field: "draft_study_plan_to_sponsor",
+        header: "Draft Study Plan Sent to Sponsor (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "draft_study_plan_sponsor_approval_comments_received",
+        header: "Study Plan - Sponsor approval / Comments received (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "draft_study_plan_sponsor_approval_comments_sent_to_sd",
+        header: "Study Plan Sponsor approval Comments sent to SD (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "corrected_draft_study_plan_to_qa",
+        header: "Corrected Draft Study Plan Sent to QA (Date & Time)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "corrected_draft_study_plan_to_yaminy_by_qa",
+        header: "Corrected Draft Study Plan Sent to Yaminy (Date)",
+        type: "date",
+        sortable: false,
+        department: "QA"
+      },
+      {
+        field: "corrected_draft_study_plan_to_sponsor",
+        header: "Corrected Draft Study Plan Sent to Sponsor (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "approval_for_corrected_draft_study_plan_received",
+        header: "Approval for Corrected Draft Study Plan Received (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "corrected_draft_study_plan_comments_to_sd",
+        header: "Corrected Draft Study Plan Comments Sent to SD (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "definitive_study_plan_taken",
+        header: "Definitive Study Plan Taken (Date)",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "definitive_study_plan_sent_to_qa",
+        header: "Definitive Study Plan Sent to QA (Date) (PDF)",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "definitive_study_plan_to_yaminy_by_qa",
+        header: "Definitive Study Plan Sent to Yaminy (Date)",
+        type: "date",
+        sortable: false,
+        department: "QA"
+      },
+      {
+        field: "definitive_plan_to_sponsor",
+        header: "Definitive Study Plan Sent to Sponsor (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "definitive_study_plan_sponsor_approval",
+        header: "Definitive Study Plan Sponsor Approval Received (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "definitive_study_plan_comments_to_sd",
+        header: "Definitive Study Plan Comments Sent to SD (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "study_initiation",
+        header: "Study Initiation (Date)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "experiment_start_date",
+        header: "Exp Start (Date)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "experiment_complete_date",
+        header: "Exp Completed (Date)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "draft_report_commited_to_qa",
+        header: "Draft Report Committed to QA (Date)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "draft_report_commited_to_sponsor",
+        header: "Draft Report Committed to Sponsor (Date)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "draft_report_completion",
+        header: "Draft Report Completion (Date)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "draft_report_to_qa",
+        header: "Draft Report to QA (Date)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "draft_report_to_yaminy_by_qa",
+        header: "Draft Report Sent to Yaminy (Date)",
+        type: "date",
+        sortable: false,
+        department: "QA"
+      },
+      {
+        field: "draft_report_to_sponsor",
+        header: "Draft Report Sent to Sponsor (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "draft_report_sponsor_reply",
+        header: "Draft Report Sponsor Approval / Comments Received (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "draft_report_comments_to_sd",
+        header: "Draft Report Sponsor Approval Comments Sent to SD (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "corrected_draft_report_to_qa",
+        header: "Corrected Draft Report Sent to QA (Date & Time)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "corrected_draft_report_to_yaminy_by_qa",
+        header: "Corrected Draft Report Sent to Yaminy (Date)",
+        type: "date",
+        sortable: false,
+        department: "QA"
+      },
+      {
+        field: "corrected_draft_report_to_sponsor",
+        header: "Corrected Draft Report Sent to Sponsor (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "corrected_draft_report_sponsor_reply",
+        header: "Corrected Draft Report Sponsor Approval Received (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "corrected_draft_report_comments_to_sd",
+        header: "Corrected Draft Report Comments Sent to SD (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "study_completion",
+        header: "Study Completion (Date)",
+        type: "date",
+        sortable: false,
+        department: "SD"
+      },
+      {
+        field: "final_report_taken",
+        header: "Final Report taken",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "final_report_to_qa",
+        header: "Final Report to QA",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      },
+      {
+        field: "final_report_to_yaminy",
+        header: "Final Report to Yaminy",
+        type: "date",
+        sortable: false,
+        department: "QA"
+      },
+      {
+        field: "final_invoice",
+        header: "Final Invoice (Date)",
+        type: "date",
+        sortable: false,
+        department: "accounts"
+      },
+      {
+        field: "final_report_to_sponsor",
+        header: "Final Report to Sponsor (Date)",
+        type: "date",
+        sortable: false,
+        department: "MAIL COMMUNICATION"
+      },
+      {
+        field: "hard_copies_sent",
+        header: "Hard Copies sent (Date)",
+        type: "date",
+        sortable: false,
+        department: "EDP"
+      }
   ];
 
   const textEditor = (options) => {
@@ -622,39 +660,43 @@ async function sendData(id, data, department) {
         />
         <IconField iconPosition="left">
           <InputIcon className="pi pi-search" />
-          <InputText
+          {/* <InputText
             value={globalFilterValue}
             onChange={onGlobalFilterChange}
             placeholder="Keyword Search"
-          />
+          /> */}
           <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(false)} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
         </IconField>
       </div>
     );
   };
 
+
   const headerGroup = (
     <ColumnGroup>
-      <Row>
-        <Column header="Study Details" rowSpan={1} colSpan={5} />
-        <Column header="TICO Data" rowSpan={1} colSpan={3} />
-        <Column header="EDP" rowSpan={1} colSpan={10} />
-        <Column header="Study Director Data" rowSpan={1} colSpan={12} />
-        <Column header="Mail Communication" rowSpan={1} colSpan={14} />
-        <Column header="QA" rowSpan={1} colSpan={6} />
-        <Column header="Accounts" rowSpan={1} colSpan={4} />
+       <Row>
+        {columns.map(({ department }) => {
+          return (
+            <Column
+              header={department}
+            />
+          );
+        })}
       </Row>
       <Row>
-        {columns.map(({ field, header, sortable }) => {
+        {columns.map(({ field, header, sortable, freeze }) => {
           return (
             <Column
               key={field}
               field={field}
+              frozen={freeze}
               header={header}
               sortable={sortable}
               style={{ width: "25%" }}
               editor={(options) => textEditor(options)}
               onCellEditComplete={onCellEditComplete}
+              filter
+              filterField={field}
             />
           );
         })}
@@ -666,6 +708,7 @@ async function sendData(id, data, department) {
     <div>
       <Toast ref={toast} />
       <DataTable
+      scrollable
         showGridlines
         value={products}
         header={renderHeader}
@@ -674,14 +717,14 @@ async function sendData(id, data, department) {
         tableStyle={{ minWidth: "50rem" }}
         removableSort
         paginator
-        rows={5}
+        rows={10}
         ref={dt}
         filters={filters}
         filterDisplay="row"
         globalFilterFields={["study_number", "sponsor", "sd_name"]}
         headerColumnGroup={headerGroup}
       >
-        {columns.map(({ field, header, type }) => {
+        {columns.map(({ field, header, type, freeze }) => {
           return type == "date" ? (
             <Column
               key={field}
@@ -695,49 +738,18 @@ async function sendData(id, data, department) {
               key={field}
               field={field}
               header={header}
+              frozen={freeze}
+              alignFrozen="left"
               filter
-              filterElement={studyNumberFilterTemplate}
+              filterField={field}
+              // filterElement={studyNumberFilterTemplate}
               sortable={false}
-              style={{ width: "25%" }}
+              style={{ width: "25%", zIndex: 2 }}
               editor={(options) => textEditor(options)}
               onCellEditComplete={onCellEditComplete}
             />
           );
         })}
-
-        {/* <Column field="sample_received_dttm" header="Sample received" sortable></Column>
-                    <Column field="tids_received_dttm" header="TIDS received" sortable></Column>
-                    <Column field="scope_approval_dttm" header="Scope Approved" sortable></Column>
-        <Column field="scope" header="Scope" sortable></Column>
-
-                    <Calendar field="draft_study_plan_to_qa" header="Draft study Plan Sent to QA"></Calendar>
-                    <Column field="corrected_draft_study_plan_qa" header="Corrected draft study plan sent to QA" ></Column>
-                    <Column field="study_initiation" header="Study initiation " ></Column>
-                    <Column field="experiment_start_date" header="Exp start" ></Column>
-                    <Column field="experiment_complete_date" header="Exp Completed Date" ></Column>
-                    <Column field="draft_report_commited_to_qa" header="Draft report committed to QA" ></Column>
-                    <Column field="draft_report_commited_to_sponsor" header="Draft report committed to Sponsor" ></Column>
-                    <Column field="draft_report_completion" header="Draft report Completion " ></Column>
-                    <Column field="draft_report_to_qa" header="Draft report to QA date" ></Column>
-                    <Column field="corrected_draft_report_to_qa" header="Corrected draft report sent to QA" ></Column>
-                    <Column field="study_completion" header="Study Completion" ></Column>
-        <Column field="tids_issued_to_yaminy" header="TIDS issued to Yaminy" sortable></Column>
-                    <Column field="sponsor_name" header="Sponsor Name" ></Column>
-                    <Column field="test_name" header="Test Name" ></Column>
-                    <Column field="study_title" header="Study Title" ></Column>
-                    <Column field="direct_reports" header="Direct Reports" ></Column>
-                    <Column field="corrected_draft_study_plan_to_sponsor" header="Corrected Draft Study Plan To Sponsor" ></Column>
-                    <Column field="approval_for_corrected_draft_study_plan_received" header="Approval for Corrected Draft SP" ></Column>
-                    <Column field="corrected_draft_study_plan_comments_to_sd" header="Corrected Draft SP to SD" ></Column>
-                    <Column field="definitive_plan_to_sponsor" header="Definitive plan to Sponsor " ></Column>
-                    <Column field="definitive_study_plan_sponsor_approval" header="Definitive Study plan sponsor approval" ></Column>
-                    <Column field="definitive_study_plan_comments_to_sd" header="Definitive study plan comments to SD" ></Column>
-                    <Column field="draft_report_to_sponsor" header="Draft report to Sponsor" ></Column>
-                    <Column field="draft_report_sponsor_reply" header="Draft report Sponsor Approval / Comments" ></Column>
-                    <Column field="draft_report_comments_to_sd" header="Draft report comments to SD" ></Column>
-                    <Column field="corrected_draft_report_to_sponsor" header="Corrected Draft report to Sponsor" ></Column>
-                    <Column field="corrected_draft_report_sponsor_reply" header="Corrected draft report sponsor reply" ></Column>
-                    <Column field="corrected_draft_report_comments_to_sd" header="Corrected Draft report comments to SD" ></Column> */}
       </DataTable>
     </div>
   );
