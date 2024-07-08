@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useLocation } from 'react-router-dom';
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -9,24 +10,33 @@ import { Dropdown } from "primereact/dropdown";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { Calendar } from "primereact/calendar";
+import {debounce} from 'lodash';
 
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
 import { Tag } from "primereact/tag";
+import Header from "../components/Header"
+import { columnsDefinition } from "./ColumnsDef";
 import './AllTestView.css'
+import Login10 from "../../login-form-20";
 
-export default function AllTestView() {
+
+export default function AllTestView(props) {
   const [products, setProducts] = useState([]);
+  const [csvProducts, setCsvProducts] = useState([]);
+  
+  const [filters, setFilters] = useState({});
   const [globalFilterValue, setGlobalFilterValue] = useState("");
-  // const [filters, setFilters] = useState("");
-  const [filters, setFilters] = useState({
-    // global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    study_number: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    // 'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    // representative: { value: null, matchMode: FilterMatchMode.IN },
-    sponsor: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    sd_name: { value: null, matchMode: FilterMatchMode.STARTS_WITH }
-});
+  
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(3);
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  const columns = columnsDefinition
+
+  const location = useLocation();
+  const userInfo = location.state?.user
 
   const dt = useRef(null);
   const toast = useRef(null);
@@ -35,464 +45,178 @@ export default function AllTestView() {
     dt.current.exportCSV({ selectionOnly });
 };
 
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (page,size) => {
+      setLoading(true)
       try {
           // Fetch data from all endpoints concurrently
           const [sdResponse, qaResponse, mailResponse, edpResponse, accountsResponse, studyResponse] = await Promise.all([
-              fetch('http://localhost:3030/sd/'),
-              fetch('http://localhost:3030/qa/'),
-              fetch('http://localhost:3030/mailCommunication/'),
-              fetch('http://localhost:3030/edp/'),
-              fetch('http://localhost:3030/accounts/'),
-              fetch('http://localhost:3030/study/')
+              fetch(`http://localhost:3030/sd?page=${page}&size=${size}`),
+              fetch(`http://localhost:3030/qa?page=${page}&size=${size}`),
+              fetch(`http://localhost:3030/mailCommunication?page=${page}&size=${size}`),
+              fetch(`http://localhost:3030/edp?page=${page}&size=${size}`),
+              fetch(`http://localhost:3030/accounts?page=${page}&size=${size}`),
+              fetch(`http://localhost:3030/study?page=${page}&size=${size}`)
           ]);
-  
-          // Extract JSON data from responses
-          const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
-              sdResponse.json(),
-              qaResponse.json(),
-              mailResponse.json(),
-              edpResponse.json(),
-              accountsResponse.json(),
-              studyResponse.json()
-          ]);
-  
-          // Create maps for faster lookup
-          const qaMap = new Map(qaResult.map(item => [item.study_id, item]));
-          const mailMap = new Map(mailResult.map(item => [item.study_id, item]));
-          const edpMap = new Map(edpResult.map(item => [item.study_id, item]));
-          const accountsMap = new Map(accountsResult.map(item => [item.study_id, item]));
-          const sdMap = new Map(sdResult.map(item => [item.study_id, item]));
           
-          const consolidation = studyResult.map(studyItem => ({
-            ...studyItem,
-            ...qaMap.get(studyItem.id) || {},
-            ...mailMap.get(studyItem.id) || {},
-            ...edpMap.get(studyItem.id) || {},
-            ...accountsMap.get(studyItem.id) || {},
-            ...sdMap.get(studyItem.id) || {},
-          }))
+          
+           const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
+            sdResponse.json(),
+            qaResponse.json(),
+            mailResponse.json(),
+            edpResponse.json(),
+            accountsResponse.json(),
+            studyResponse.json()
+        ]);
+        console.log(studyResult)
+        setTotalRecords(studyResult.totalItems);
+       
+
+        // Create maps for faster lookup
+        const qaMap = new Map(qaResult.data.map(item => [item.study_number, item]));
+        const mailMap = new Map(mailResult.data.map(item => [item.study_number, item]));
+        const edpMap = new Map(edpResult.data.map(item => [item.study_number, item]));
+        const accountsMap = new Map(accountsResult.data.map(item => [item.study_number, item]));
+        const sdMap = new Map(sdResult.data.map(item => [item.study_number, item]));
+        
+        console.log(qaMap)
+        const consolidation = studyResult.data.map(studyItem => ({
+          ...studyItem,
+          ...qaMap.get(studyItem.study_number) || {}, // Merge with QA data if available
+          ...mailMap.get(studyItem.study_number) || {}, // Merge with Mail data if available
+          ...edpMap.get(studyItem.study_number) || {}, // Merge with EDP data if available
+          ...accountsMap.get(studyItem.study_number) || {}, // Merge with Accounts data if available
+          ...sdMap.get(studyItem.study_number) || {},
+        }))
+
           // Set consolidated data to state
           setProducts(consolidation);
+          setLoading(false)
       } catch (error) {
           console.error('Error fetching data:', error);
+          setLoading(false);
       }
   };
   
     initFilters();
-    fetchData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    fetchData(page,size);
+  }, [page,size]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const columns = [
-    {
-      field: "study_number",
-      header: "Study Number",
-      type: "text",
-      sortable: "true",
-      department: "STUDY",
-      freeze: "true"
-    },
-    { field: "sponsor", header: "Sponsor", type: "text", sortable: "true", department: "MAIL COMMUNICATION" },
-    {
-      field: "sd_name",
-      header: "Study Director",
-      type: "text",
-      sortable: "true",
-      department: "STUDY",
-    },
-    { field: "test_name", header: "Test Name", type: "text", sortable: false, department: "MAIL COMMUNICATION" },
-    {
-      field: "study_title",
-      header: "Study Title",
-      type: "text",
-      sortable: false,
-      department: "STUDY",
-    },
-    ,	
-    {
-      field: "sample_received_dttm",
-      header: "Sample Received",
-      type: "date",
-      sortable: false,
-      department: "TICO",
-    },
-    {
-      field: "tids_received_dttm",
-      header: "TIDS Received",
-      type: "date",
-      sortable: false,
-      department: "TICO",
-    },
-    {
-      field: "scope_approval_dttm",
-      header: "Scope Approved",
-      type: "date",
-      sortable: false,
-      department: "TICO",
-    },
-      {
-        field: "tids_issued_to_yaminy",
-        header: "TIDS Issued to Yaminy",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "invoice_number",
-        header: "Invoice Number",
-        type: "text",
-        sortable: false,
-        department: "accounts"
-      },
-      {
-        field: "invoice_date",
-        header: "Invoice Date",
-        type: "date",
-        sortable: false,
-        department: "accounts"
-      },
-      {
-        field: "payment_received_in_percent",
-        header: "Payment Received In %",
-        type: "text",
-        sortable: false,
-        department: "accounts"
-      },
-      {
-        field: "scope",
-        header: "Scope",
-        type: "text",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "direct_reports",
-        header: "Direct Reports",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "sd_allotment_yaminy_to_qa",
-        header: "SD Allotment Yaminy Issued to QA (Date & Time)",
-        type: "date",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "study_alloted_to_qa",
-        header: "Study Alloted by QA (Date & Time)",
-        type: "date",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "study_plan_prepared_by",
-        header: "Study Plan Prepared by",
-        type: "text",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "study_plan_prepared_on",
-        header: "Study Plan Prepared (Date)",
-        type: "date",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "study_plan_to_sd",
-        header: "Study plan Hand over to SD (Date)",
-        type: "date",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "draft_study_plan_to_qa",
-        header: "Draft Study Plan Sent to QA (Date & Time)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "draft_study_plan_to_yaminy_by_qa",
-        header: "Draft Study Plan Sent to Yaminy by QA (Date)",
-        type: "date",
-        sortable: false,
-        department: "QA"
-      },
-      {
-        field: "draft_study_plan_to_sponsor",
-        header: "Draft Study Plan Sent to Sponsor (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "draft_study_plan_sponsor_approval_comments_received",
-        header: "Study Plan - Sponsor approval / Comments received (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "draft_study_plan_sponsor_approval_comments_sent_to_sd",
-        header: "Study Plan Sponsor approval Comments sent to SD (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "corrected_draft_study_plan_to_qa",
-        header: "Corrected Draft Study Plan Sent to QA (Date & Time)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "corrected_draft_study_plan_to_yaminy_by_qa",
-        header: "Corrected Draft Study Plan Sent to Yaminy (Date)",
-        type: "date",
-        sortable: false,
-        department: "QA"
-      },
-      {
-        field: "corrected_draft_study_plan_to_sponsor",
-        header: "Corrected Draft Study Plan Sent to Sponsor (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "approval_for_corrected_draft_study_plan_received",
-        header: "Approval for Corrected Draft Study Plan Received (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "corrected_draft_study_plan_comments_to_sd",
-        header: "Corrected Draft Study Plan Comments Sent to SD (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "definitive_study_plan_taken",
-        header: "Definitive Study Plan Taken (Date)",
-        type: "date",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "definitive_study_plan_sent_to_qa",
-        header: "Definitive Study Plan Sent to QA (Date) (PDF)",
-        type: "date",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "definitive_study_plan_to_yaminy_by_qa",
-        header: "Definitive Study Plan Sent to Yaminy (Date)",
-        type: "date",
-        sortable: false,
-        department: "QA"
-      },
-      {
-        field: "definitive_plan_to_sponsor",
-        header: "Definitive Study Plan Sent to Sponsor (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "definitive_study_plan_sponsor_approval",
-        header: "Definitive Study Plan Sponsor Approval Received (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "definitive_study_plan_comments_to_sd",
-        header: "Definitive Study Plan Comments Sent to SD (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "study_initiation",
-        header: "Study Initiation (Date)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "experiment_start_date",
-        header: "Exp Start (Date)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "experiment_complete_date",
-        header: "Exp Completed (Date)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "draft_report_commited_to_qa",
-        header: "Draft Report Committed to QA (Date)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "draft_report_commited_to_sponsor",
-        header: "Draft Report Committed to Sponsor (Date)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "draft_report_completion",
-        header: "Draft Report Completion (Date)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "draft_report_to_qa",
-        header: "Draft Report to QA (Date)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "draft_report_to_yaminy_by_qa",
-        header: "Draft Report Sent to Yaminy (Date)",
-        type: "date",
-        sortable: false,
-        department: "QA"
-      },
-      {
-        field: "draft_report_to_sponsor",
-        header: "Draft Report Sent to Sponsor (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "draft_report_sponsor_reply",
-        header: "Draft Report Sponsor Approval / Comments Received (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "draft_report_comments_to_sd",
-        header: "Draft Report Sponsor Approval Comments Sent to SD (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "corrected_draft_report_to_qa",
-        header: "Corrected Draft Report Sent to QA (Date & Time)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "corrected_draft_report_to_yaminy_by_qa",
-        header: "Corrected Draft Report Sent to Yaminy (Date)",
-        type: "date",
-        sortable: false,
-        department: "QA"
-      },
-      {
-        field: "corrected_draft_report_to_sponsor",
-        header: "Corrected Draft Report Sent to Sponsor (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "corrected_draft_report_sponsor_reply",
-        header: "Corrected Draft Report Sponsor Approval Received (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "corrected_draft_report_comments_to_sd",
-        header: "Corrected Draft Report Comments Sent to SD (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "study_completion",
-        header: "Study Completion (Date)",
-        type: "date",
-        sortable: false,
-        department: "SD"
-      },
-      {
-        field: "final_report_taken",
-        header: "Final Report taken",
-        type: "date",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "final_report_to_qa",
-        header: "Final Report to QA",
-        type: "date",
-        sortable: false,
-        department: "EDP"
-      },
-      {
-        field: "final_report_to_yaminy",
-        header: "Final Report to Yaminy",
-        type: "date",
-        sortable: false,
-        department: "QA"
-      },
-      {
-        field: "final_invoice",
-        header: "Final Invoice (Date)",
-        type: "date",
-        sortable: false,
-        department: "accounts"
-      },
-      {
-        field: "final_report_to_sponsor",
-        header: "Final Report to Sponsor (Date)",
-        type: "date",
-        sortable: false,
-        department: "MAIL COMMUNICATION"
-      },
-      {
-        field: "hard_copies_sent",
-        header: "Hard Copies sent (Date)",
-        type: "date",
-        sortable: false,
-        department: "EDP"
+  const onFilter = (event) => {
+    // Handle column filters
+    setFilters(event.filters);
+    setPage(0); // Reset page when filters change
+  };
+
+
+
+  const handleSearch = (event) => {
+    setGlobalFilterValue(event.target.value);
+  }
+  
+
+  const fetchCsvData = async () => {
+    setLoading(true)
+    try {
+        // Fetch data from all endpoints concurrently
+        const [sdResponse, qaResponse, mailResponse, edpResponse, accountsResponse, studyResponse] = await Promise.all([
+            fetch(`http://localhost:3030/sd/csv`),
+            fetch(`http://localhost:3030/qa/csv`),
+            fetch(`http://localhost:3030/mailCommunication/csv`),
+            fetch(`http://localhost:3030/edp/csv`),
+            fetch(`http://localhost:3030/accounts/csv`),
+            fetch(`http://localhost:3030/study/csv`)
+        ]);
+        // setTotalRecords(10);
+        
+         const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
+          sdResponse.json(),
+          qaResponse.json(),
+          mailResponse.json(),
+          edpResponse.json(),
+          accountsResponse.json(),
+          studyResponse.json()
+      ]);
+
+      console.log(qaResult)
+
+      // Create maps for faster lookup
+      const qaMap = new Map(qaResult.map(item => [item.study_number, item]));
+      const mailMap = new Map(mailResult.map(item => [item.study_number, item]));
+      const edpMap = new Map(edpResult.map(item => [item.study_number, item]));
+      const accountsMap = new Map(accountsResult.map(item => [item.study_number, item]));
+      const sdMap = new Map(sdResult.map(item => [item.study_number, item]));
+      
+      console.log(qaMap)
+      const consolidation = studyResult.map(studyItem => ({
+        ...studyItem,
+        ...qaMap.get(studyItem.study_number) || {}, // Merge with QA data if available
+        ...mailMap.get(studyItem.study_number) || {}, // Merge with Mail data if available
+        ...edpMap.get(studyItem.study_number) || {}, // Merge with EDP data if available
+        ...accountsMap.get(studyItem.study_number) || {}, // Merge with Accounts data if available
+        ...sdMap.get(studyItem.study_number) || {},
+      }))
+      console.log(consolidation)
+        // Set consolidated data to state
+        setLoading(false)
+        return consolidation
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+    }
+};
+
+    const convertToCSV = (data) => {
+      try {
+      const csvHeader = Object.keys(data[0]).join(',');
+      const csvContent = data.map(row => Object.values(row).join(',')).join('\n');
+      return `${csvHeader}\n${csvContent}`;
+      } catch (e) {
+        console.log(e)
       }
-  ];
+    };
+
+    const downloadCSV = async () => {
+      const csvTests = await fetchCsvData()
+      const csvData = convertToCSV(csvTests);
+      console.log(csvTests)
+      console.log(csvData)
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'combined_data.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
 
   const textEditor = (options) => {
-    return (
-      <InputText
-        type="text"
-        value={options.value}
-        onChange={(e) => options.editorCallback(e.target.value)}
-        onKeyDown={(e) => e.stopPropagation()}
-      />
-    );
-  };
+    const { field } = options;
+    const dept = getDepartmentByField(field)
+      console.log('Coming here ', dept.toLowerCase(), userInfo, dept.toLowerCase === userInfo.role)
+      return (
+        <InputText
+          type="text"
+          value={options.value}
+          onChange={(e) => options.editorCallback(e.target.value)}
+          onKeyDown={(e) => e.stopPropagation()}
+          disabled={!(dept.toLowerCase() === userInfo.role)}
+        />
+      );
+};
+
+    const onPage = (event) => {
+      setPage(event.first / size); // Calculate page index
+      console.log(page)
+    };
+
+    const onPageSizeChange = (event) => {
+      setSize(event.value);
+      setPage(0); // Reset to first page when size changes
+    };
+
 
   const initFilters = () => {
     setFilters({
@@ -508,6 +232,8 @@ export default function AllTestView() {
 async function sendData(id, data, department) {
   console.log('This method is called', department)
   const raw = JSON.stringify(data);
+  const dept = department !== 'MAIL COMMUNICATION' ? department.toLowerCase() : 'mailCommunication'
+  if(dept === userInfo.role) {
   try {
     const response = await fetch(`http://localhost:3030/${department}/${id}`, {
         method: 'PUT', // Specify the request method
@@ -529,34 +255,41 @@ async function sendData(id, data, department) {
   } catch (error) {
     console.error('Error:', error);
   }
+
 }
+}
+
   function getDepartmentByField(field) {
-    console.log(field)
-    console.log(columns)
-    // Find the column that matches the given field
-    // const column = columns.find(col => col[0].field === field);
     for (const column of columns) {
       if (column && column.field === field) {
           return column.department || 'Field does not have a department';
       }
   }
-    // Return the department if found, otherwise return null or undefined
-    // return column ? column.department : null;
     return 'Field not found';
   }
 
   const onCellEditComplete = async (e) => {
+    setLoading(true)
     let { rowData, newValue, field, originalEvent: event } = e;
-    const study_number = rowData.id;
+    const study_number = rowData.study_number;
     const department = getDepartmentByField(field)
-    console.log(rowData)
-    console.log(newValue)
+    
     const data = {
-      [field]: newValue
+      [field]: newValue,
+      updated_by: userInfo.name, 
+      update_dttm: new Date()
   };
+    try {
     const res = await sendData(study_number, data, department);
-    console.log(res)
-  };
+    setLoading(false)
+    // fetchData(page,size)
+    return res
+    } catch (e) {
+      setLoading(false)
+      return e
+    }
+  } 
+
 
   function formatDate(dateString) {
     // Parse the input date string to a Date object
@@ -572,21 +305,28 @@ async function sendData(id, data, department) {
 }
 
   const updateDate = async (id, field, newDate) => {
-    console.log(id)
-    console.log(field)
-    console.log(newDate)
+    // setLoading(true)
+    console.log()
     const department = getDepartmentByField(field)
     const requestDate = formatDate(newDate)
+    console.log(userInfo.role)
     const data = {
-      [field]: requestDate
+      [field]: requestDate, 
+      updated_by: userInfo.name, 
+      update_dttm: new Date()
     };
-
+    try {
     const res = await sendData(id, data, department);
-    console.log(res)
+    // setLoading(false)
+    return res
+    } catch {
+      // setLoading(false)
+      return e
+    }
   };
 
   const parseDate = (dateStr) => {
-    if(dateStr === undefined ) {
+    if(dateStr === undefined || null ) {
       return;
     }
     if (typeof dateStr === "object" && dateStr instanceof Date) {
@@ -602,75 +342,40 @@ async function sendData(id, data, department) {
 
   // Custom body template to render the Calendar component
   const dateTemplate = (rowData, field) => {
-    const dateValue = parseDate(rowData[field]);
+    try {
+    const dept = getDepartmentByField(field)
+    const dep = dept.toLowerCase()
+    const dateValue = rowData[field] ? parseDate(rowData[field]) : null
     return (
       <Calendar
         value={dateValue}
-        onChange={(e) => updateDate(rowData.id, field, e.value)}
+        onChange={(e) => updateDate(rowData.study_number, field, e.value)}
         dateFormat="MM dd,yy"
+        disabled={!(dep === userInfo.role)}
       />
     );
+    } catch (e) {
+      console.log(e)
+    }
   };
 
-  const onGlobalFilterChange = (e) => {
-    console.log(e);
-    const value = e.target.value;
-    let _filters = { ...filters };
 
-    _filters["global"].value = value;
-
-    setFilters(_filters);
-    setGlobalFilterValue(value);
-  };
-
-  const statusItemTemplate = (option) => {
-    return <Tag value={option} />;
-  };
-
-  const studyNumberFilterTemplate = (options) => {
-    console.log(options);
-    return (
-      <Dropdown
-        value={options.value}
-        options={products.sponsor}
-        onChange={(e) => options.filterApplyCallback(e.value)}
-        itemTemplate={statusItemTemplate}
-        placeholder="Select One"
-        className="p-column-filter"
-        showClear
-        style={{ minWidth: "12rem" }}
-      />
-    );
-  };
 
   const clearFilter = () => {
     initFilters();
   };
 
+
+  const paginatorLeft = <Button type="button" icon="pi pi-refresh" text />;
+  const paginatorRight = <Button type="button" icon="pi pi-download" text />;
+
   const renderHeader = () => {
     return (
-      <div className="flex justify-content-between">
-        <Button
-          type="button"
-          icon="pi pi-filter-slash"
-          label="Clear"
-          outlined
-          clear
-          onClick={clearFilter}
-        />
-        <IconField iconPosition="left">
-          <InputIcon className="pi pi-search" />
-          {/* <InputText
-            value={globalFilterValue}
-            onChange={onGlobalFilterChange}
-            placeholder="Keyword Search"
-          /> */}
-          <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(false)} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
-        </IconField>
+      <div className="flex justify-content-between"> 
+          <Button type="button" icon="pi pi-file" rounded onClick={() => downloadCSV()} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
       </div>
     );
   };
-
 
   const headerGroup = (
     <ColumnGroup>
@@ -704,27 +409,56 @@ async function sendData(id, data, department) {
     </ColumnGroup>
   );
 
+  const rowsPerPage = [5, 10, 25, 50];
+  const [statuses] = useState(['unqualified', 'qualified', 'new', 'negotiation', 'renewal']);
+
+  const statusRowFilterTemplate = (options) => {
+    return (
+        <Dropdown value={options.value} options={statuses} onChange={(e) => options.filterApplyCallback(e.value)} itemTemplate={statusItemTemplate} placeholder="Select One" className="p-column-filter" showClear style={{ minWidth: '12rem' }} />
+    );
+};
+
   return (
-    <div>
+      <div>
+      <Header {...userInfo} />
+      {/* <div style={{ marginTop: '20px' }}></div> */}
+      {userInfo ? 
+      <>
       <Toast ref={toast} />
       <DataTable
       scrollable
         showGridlines
         value={products}
-        header={renderHeader}
+        // header={renderHeader}
         editMode="cell"
         resizableColumns
         tableStyle={{ minWidth: "50rem" }}
         removableSort
         paginator
-        rows={10}
+        rows={size}
+        first={page * size}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        onPageSizeChange={onPageSizeChange}
         ref={dt}
-        filters={filters}
+        // filters={filters}
         filterDisplay="row"
         globalFilterFields={["study_number", "sponsor", "sd_name"]}
         headerColumnGroup={headerGroup}
+        loading={loading}
+        // scrollHeight="1000px"
+        paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        // currentPageReportTemplate={page} 
+        // paginatorLeft={paginatorLeft} 
+        // paginatorRight={paginatorRight}
+        lazy
+        onPage={onPage}
+        totalRecords={totalRecords}
+        // onFilter={onFilter}
+        // filters={filters}
+        // globalFilter={globalFilterValue}
       >
-        {columns.map(({ field, header, type, freeze }) => {
+
+        {columns.map(({ field, header, type, freeze, department }) => {
           return type == "date" ? (
             <Column
               key={field}
@@ -740,17 +474,39 @@ async function sendData(id, data, department) {
               header={header}
               frozen={freeze}
               alignFrozen="left"
-              filter
-              filterField={field}
+              filter 
+              // filterElement={statusRowFilterTemplate}
+              // showFilterMenu={false} filterMenuStyle={{ width: '14rem' }}
+              // filter
+              // filter 
+              // filterElement={renderFilterElement}
+              // filterField={field}
               // filterElement={studyNumberFilterTemplate}
-              sortable={false}
+              sortable={true}
               style={{ width: "25%", zIndex: 2 }}
-              editor={(options) => textEditor(options)}
-              onCellEditComplete={onCellEditComplete}
+              // editor={(options) => textEditor(options)}
+              // onCellEditComplete={onCellEditComplete}
             />
           );
         })}
       </DataTable>
+      <div style={{ marginTop: "10px" }}>
+        
+        <div className="flex justify-content-between"> 
+          <Button type="button" icon="pi pi-file" rounded onClick={() => downloadCSV()} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
+      {/* </div> */}
+      <span>Rows per page: </span>
+        <select value={size} onChange={(e) => onPageSizeChange(e.target)}>
+          {[10,25,50].map((pageSize) => (
+            <option key={pageSize} value={pageSize}>
+              {pageSize}
+            </option>
+          ))}
+        </select>
+      </div>
+      </div>
+      </> : <Login10 />
+}
     </div>
   );
 }
