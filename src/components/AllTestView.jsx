@@ -4,17 +4,13 @@ import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Toast } from "primereact/toast";
-import { Dropdown } from "primereact/dropdown";
-import { IconField } from "primereact/iconfield";
-import { InputIcon } from "primereact/inputicon";
 import { Calendar } from "primereact/calendar";
-import {debounce} from 'lodash';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon'; 
 
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
-import { Tag } from "primereact/tag";
 import Header from "../components/Header"
 import { columnsDefinition } from "./ColumnsDef";
 import './AllTestView.css'
@@ -23,10 +19,6 @@ import Login10 from "../../login-form-20";
 
 export default function AllTestView(props) {
   const [products, setProducts] = useState([]);
-  const [csvProducts, setCsvProducts] = useState([]);
-  
-  const [filters, setFilters] = useState({});
-  const [globalFilterValue, setGlobalFilterValue] = useState("");
   
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
@@ -98,16 +90,9 @@ export default function AllTestView(props) {
           setLoading(false);
       }
   };
-  
-    initFilters();
+
     fetchData(page,size);
   }, [page,size]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const onFilter = (event) => {
-    // Handle column filters
-    setFilters(event.filters);
-    setPage(0); // Reset page when filters change
-  };
 
 
 
@@ -216,17 +201,6 @@ export default function AllTestView(props) {
       setSize(event.value);
       setPage(0); // Reset to first page when size changes
     };
-
-
-  const initFilters = () => {
-    setFilters({
-      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      study_number: { value: null, matchMode: FilterMatchMode.EQUALS },
-      sponsor: { value: null, matchMode: FilterMatchMode.EQUALS },
-      sd_name: { value: null, matchMode: FilterMatchMode.EQUALS },
-    });
-    setGlobalFilterValue("");
-  };
 
   // Define the function to send the POST request
 async function sendData(id, data, department) {
@@ -361,14 +335,6 @@ async function sendData(id, data, department) {
 
 
 
-  const clearFilter = () => {
-    initFilters();
-  };
-
-
-  const paginatorLeft = <Button type="button" icon="pi pi-refresh" text />;
-  const paginatorRight = <Button type="button" icon="pi pi-download" text />;
-
   const renderHeader = () => {
     return (
       <div className="flex justify-content-between"> 
@@ -409,18 +375,31 @@ async function sendData(id, data, department) {
     </ColumnGroup>
   );
 
-  const rowsPerPage = [5, 10, 25, 50];
-  const [statuses] = useState(['unqualified', 'qualified', 'new', 'negotiation', 'renewal']);
-
-  const statusRowFilterTemplate = (options) => {
-    return (
-        <Dropdown value={options.value} options={statuses} onChange={(e) => options.filterApplyCallback(e.value)} itemTemplate={statusItemTemplate} placeholder="Select One" className="p-column-filter" showClear style={{ minWidth: '12rem' }} />
-    );
-};
 
   return (
       <div>
       <Header {...userInfo} />
+      <div style={{ marginTop: "10px" }}>
+        
+        <div className="flex justify-content-between"> 
+          <Button type="button" icon="pi pi-file" rounded onClick={() => downloadCSV()} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
+      {/* </div> */}
+      <span>
+        <IconField iconPosition="left">
+            <InputIcon className="pi pi-search" />
+            <InputText placeholder="Search" />
+        </IconField>
+        </span>
+      <span>Rows per page: </span>
+        <select value={size} onChange={(e) => onPageSizeChange(e.target)}>
+          {[10,25,50].map((pageSize) => (
+            <option key={pageSize} value={pageSize}>
+              {pageSize}
+            </option>
+          ))}
+        </select>
+      </div>
+      </div>
       {/* <div style={{ marginTop: '20px' }}></div> */}
       {userInfo ? 
       <>
@@ -447,15 +426,9 @@ async function sendData(id, data, department) {
         loading={loading}
         // scrollHeight="1000px"
         paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-        // currentPageReportTemplate={page} 
-        // paginatorLeft={paginatorLeft} 
-        // paginatorRight={paginatorRight}
         lazy
         onPage={onPage}
         totalRecords={totalRecords}
-        // onFilter={onFilter}
-        // filters={filters}
-        // globalFilter={globalFilterValue}
       >
 
         {columns.map(({ field, header, type, freeze, department }) => {
@@ -490,21 +463,6 @@ async function sendData(id, data, department) {
           );
         })}
       </DataTable>
-      <div style={{ marginTop: "10px" }}>
-        
-        <div className="flex justify-content-between"> 
-          <Button type="button" icon="pi pi-file" rounded onClick={() => downloadCSV()} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
-      {/* </div> */}
-      <span>Rows per page: </span>
-        <select value={size} onChange={(e) => onPageSizeChange(e.target)}>
-          {[10,25,50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              {pageSize}
-            </option>
-          ))}
-        </select>
-      </div>
-      </div>
       </> : <Login10 />
 }
     </div>
