@@ -15,12 +15,7 @@ export default function Header(props) {
         </React.Fragment>
     );
     
-    const centerContent = (
-        <IconField iconPosition="left">
-            <InputIcon className="pi pi-search" />
-            <InputText placeholder="Search" />
-        </IconField>
-    );
+    
     
     const role = toUpper(props?.role)
 
@@ -30,6 +25,7 @@ export default function Header(props) {
             {/* <div style={{ marginRight: "20px" }}>
                 <Tracker />
             </div> */}
+            
             {<props className="user"></props> ? (<>
                 <div className="flex align-items-center gap-2">
             
@@ -42,7 +38,7 @@ export default function Header(props) {
 
     return (
         <div>
-            <Toolbar start={startContent} center={centerContent} end={endContent} />
+            <Toolbar start={startContent}  end={endContent} />
         </div>
     );
 }

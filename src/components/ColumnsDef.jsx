@@ -14,6 +14,7 @@ export const columnsDefinition = [
       type: "text",
       sortable: "true",
       department: "STUDY",
+      freeze: "true", 
     },
     { field: "test_name", header: "Test Name", type: "text", sortable: false, department: "MAIL COMMUNICATION" },
     {

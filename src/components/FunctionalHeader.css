@@ -1,8 +1,8 @@
-.p-datatable-frozen-view {
-    z-index: 2; /* Ensure this is higher than non-frozen content */
-}
-.p-datatable-scrollable-view {
-    z-index: 1;
+.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
 }
 
 .search-container {
@@ -13,6 +13,8 @@
     background-color: #fff;
     padding: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 0 auto; /* Center the container horizontally */
+    width: 500px; /* Set a specific width for the search container */
 }
 
 .dropdown {

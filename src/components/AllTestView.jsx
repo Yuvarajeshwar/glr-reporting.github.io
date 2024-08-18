@@ -12,9 +12,10 @@ import { InputIcon } from 'primereact/inputicon';
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
 import Header from "../components/Header"
+import FunctionalHeader from "./FunctionalHeader";
 import { columnsDefinition } from "./ColumnsDef";
 import './AllTestView.css'
-import Login10 from "../../login-form-20";
+// import Login10 from "../../login-form-20";
 
 
 export default function AllTestView(props) {
@@ -24,6 +25,7 @@ export default function AllTestView(props) {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(3);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [filterText, setFilterText] = useState(""); 
 
   const columns = columnsDefinition
 
@@ -33,10 +35,12 @@ export default function AllTestView(props) {
   const dt = useRef(null);
   const toast = useRef(null);
 
-  const exportCSV = (selectionOnly) => {
-    dt.current.exportCSV({ selectionOnly });
-};
-
+   // Filter products based on study_number
+   const filteredProducts = filterText
+    ? products.filter(product =>
+        product.study_number && product.study_number.toString().toLowerCase().includes(filterText.toLowerCase())
+      )
+    : products;
 
   useEffect(() => {
     const fetchData = async (page,size) => {
@@ -96,87 +100,7 @@ export default function AllTestView(props) {
 
 
 
-  const handleSearch = (event) => {
-    setGlobalFilterValue(event.target.value);
-  }
   
-
-  const fetchCsvData = async () => {
-    setLoading(true)
-    try {
-        // Fetch data from all endpoints concurrently
-        const [sdResponse, qaResponse, mailResponse, edpResponse, accountsResponse, studyResponse] = await Promise.all([
-            fetch(`http://localhost:3030/sd/csv`),
-            fetch(`http://localhost:3030/qa/csv`),
-            fetch(`http://localhost:3030/mailCommunication/csv`),
-            fetch(`http://localhost:3030/edp/csv`),
-            fetch(`http://localhost:3030/accounts/csv`),
-            fetch(`http://localhost:3030/study/csv`)
-        ]);
-        // setTotalRecords(10);
-        
-         const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
-          sdResponse.json(),
-          qaResponse.json(),
-          mailResponse.json(),
-          edpResponse.json(),
-          accountsResponse.json(),
-          studyResponse.json()
-      ]);
-
-      console.log(qaResult)
-
-      // Create maps for faster lookup
-      const qaMap = new Map(qaResult.map(item => [item.study_number, item]));
-      const mailMap = new Map(mailResult.map(item => [item.study_number, item]));
-      const edpMap = new Map(edpResult.map(item => [item.study_number, item]));
-      const accountsMap = new Map(accountsResult.map(item => [item.study_number, item]));
-      const sdMap = new Map(sdResult.map(item => [item.study_number, item]));
-      
-      console.log(qaMap)
-      const consolidation = studyResult.map(studyItem => ({
-        ...studyItem,
-        ...qaMap.get(studyItem.study_number) || {}, // Merge with QA data if available
-        ...mailMap.get(studyItem.study_number) || {}, // Merge with Mail data if available
-        ...edpMap.get(studyItem.study_number) || {}, // Merge with EDP data if available
-        ...accountsMap.get(studyItem.study_number) || {}, // Merge with Accounts data if available
-        ...sdMap.get(studyItem.study_number) || {},
-      }))
-      console.log(consolidation)
-        // Set consolidated data to state
-        setLoading(false)
-        return consolidation
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-    }
-};
-
-    const convertToCSV = (data) => {
-      try {
-      const csvHeader = Object.keys(data[0]).join(',');
-      const csvContent = data.map(row => Object.values(row).join(',')).join('\n');
-      return `${csvHeader}\n${csvContent}`;
-      } catch (e) {
-        console.log(e)
-      }
-    };
-
-    const downloadCSV = async () => {
-      const csvTests = await fetchCsvData()
-      const csvData = convertToCSV(csvTests);
-      console.log(csvTests)
-      console.log(csvData)
-      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'combined_data.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-
   const textEditor = (options) => {
     const { field } = options;
     const dept = getDepartmentByField(field)
@@ -193,23 +117,23 @@ export default function AllTestView(props) {
 };
 
     const onPage = (event) => {
-      setPage(event.first / size); // Calculate page index
+      setPage(parseInt(event.first / size)); // Calculate page index
       console.log(page)
     };
 
     const onPageSizeChange = (event) => {
-      setSize(event.value);
+      setSize(parseInt(event.value));
       setPage(0); // Reset to first page when size changes
     };
 
   // Define the function to send the POST request
 async function sendData(id, data, department) {
-  console.log('This method is called', department)
+  console.log('This method is called', id)
   const raw = JSON.stringify(data);
   const dept = department !== 'MAIL COMMUNICATION' ? department.toLowerCase() : 'mailCommunication'
-  if(dept === userInfo.role) {
+  // if(dept === userInfo.role) {
   try {
-    const response = await fetch(`http://localhost:3030/${department}/${id}`, {
+    const response = await fetch(`http://localhost:3030/${dept}/${id}`, {
         method: 'PUT', // Specify the request method
       headers: {
         'Content-Type': 'application/json' // Specify the content type as JSON
@@ -230,7 +154,7 @@ async function sendData(id, data, department) {
     console.error('Error:', error);
   }
 
-}
+// }
 }
 
   function getDepartmentByField(field) {
@@ -280,20 +204,20 @@ async function sendData(id, data, department) {
 
   const updateDate = async (id, field, newDate) => {
     // setLoading(true)
-    console.log()
+    console.log('Here')
     const department = getDepartmentByField(field)
     const requestDate = formatDate(newDate)
-    console.log(userInfo.role)
+    console.log(userInfo?.role)
     const data = {
       [field]: requestDate, 
-      updated_by: userInfo.name, 
+      updated_by: userInfo?.name, 
       update_dttm: new Date()
     };
     try {
     const res = await sendData(id, data, department);
     // setLoading(false)
     return res
-    } catch {
+    } catch(e) {
       // setLoading(false)
       return e
     }
@@ -325,7 +249,7 @@ async function sendData(id, data, department) {
         value={dateValue}
         onChange={(e) => updateDate(rowData.study_number, field, e.value)}
         dateFormat="MM dd,yy"
-        disabled={!(dep === userInfo.role)}
+        // disabled={!(dep === userInfo.role)}
       />
     );
     } catch (e) {
@@ -335,13 +259,13 @@ async function sendData(id, data, department) {
 
 
 
-  const renderHeader = () => {
-    return (
-      <div className="flex justify-content-between"> 
-          <Button type="button" icon="pi pi-file" rounded onClick={() => downloadCSV()} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
-      </div>
-    );
-  };
+  // const renderHeader = () => {
+  //   return (
+  //     <div className="flex justify-content-between"> 
+  //         <Button type="button" icon="pi pi-file" rounded onClick={() => downloadCSV()} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
+  //     </div>
+  //   );
+  // };
 
   const headerGroup = (
     <ColumnGroup>
@@ -375,23 +299,16 @@ async function sendData(id, data, department) {
     </ColumnGroup>
   );
 
-
+  const rowsOptions = [5, 10, 25, 50]
   return (
       <div>
       <Header {...userInfo} />
+      <FunctionalHeader products={products} setProducts={setProducts} />
       <div style={{ marginTop: "10px" }}>
-        
         <div className="flex justify-content-between"> 
-          <Button type="button" icon="pi pi-file" rounded onClick={() => downloadCSV()} data-pr-tooltip="Export as CSV" style={{ marginLeft: '100px'}} />
-      {/* </div> */}
-      <span>
-        <IconField iconPosition="left">
-            <InputIcon className="pi pi-search" />
-            <InputText placeholder="Search" />
-        </IconField>
-        </span>
-      <span>Rows per page: </span>
+        
         <select value={size} onChange={(e) => onPageSizeChange(e.target)}>
+        <span>Rows per page: </span>
           {[10,25,50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
               {pageSize}
@@ -401,7 +318,7 @@ async function sendData(id, data, department) {
       </div>
       </div>
       {/* <div style={{ marginTop: '20px' }}></div> */}
-      {userInfo ? 
+      {/* {userInfo ?  */}
       <>
       <Toast ref={toast} />
       <DataTable
@@ -416,16 +333,13 @@ async function sendData(id, data, department) {
         paginator
         rows={size}
         first={page * size}
-        rowsPerPageOptions={[5, 10, 25, 50]}
+        rowsPerPageOptions={rowsOptions}
         onPageSizeChange={onPageSizeChange}
         ref={dt}
-        // filters={filters}
-        filterDisplay="row"
-        globalFilterFields={["study_number", "sponsor", "sd_name"]}
         headerColumnGroup={headerGroup}
         loading={loading}
         // scrollHeight="1000px"
-        paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        // paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
         lazy
         onPage={onPage}
         totalRecords={totalRecords}
@@ -447,14 +361,6 @@ async function sendData(id, data, department) {
               header={header}
               frozen={freeze}
               alignFrozen="left"
-              filter 
-              // filterElement={statusRowFilterTemplate}
-              // showFilterMenu={false} filterMenuStyle={{ width: '14rem' }}
-              // filter
-              // filter 
-              // filterElement={renderFilterElement}
-              // filterField={field}
-              // filterElement={studyNumberFilterTemplate}
               sortable={true}
               style={{ width: "25%", zIndex: 2 }}
               // editor={(options) => textEditor(options)}
@@ -463,8 +369,9 @@ async function sendData(id, data, department) {
           );
         })}
       </DataTable>
-      </> : <Login10 />
-}
+      </> 
+       {/* : <Login10 /> */}
+{/* } */}
     </div>
   );
 }
