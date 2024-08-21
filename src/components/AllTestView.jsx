@@ -7,7 +7,8 @@ import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { Calendar } from "primereact/calendar";
 import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon'; 
+import { InputIcon } from 'primereact/inputicon';
+import backgroundImage from '../assets/background.webp'
 
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
@@ -20,12 +21,12 @@ import './AllTestView.css'
 
 export default function AllTestView(props) {
   const [products, setProducts] = useState([]);
-  
+
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(3);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [filterText, setFilterText] = useState(""); 
+  const [filterText, setFilterText] = useState("");
 
   const columns = columnsDefinition
 
@@ -35,39 +36,39 @@ export default function AllTestView(props) {
   const dt = useRef(null);
   const toast = useRef(null);
 
-   // Filter products based on study_number
-   const filteredProducts = filterText
+  // Filter products based on study_number
+  const filteredProducts = filterText
     ? products.filter(product =>
-        product.study_number && product.study_number.toString().toLowerCase().includes(filterText.toLowerCase())
-      )
+      product.study_number && product.study_number.toString().toLowerCase().includes(filterText.toLowerCase())
+    )
     : products;
 
   useEffect(() => {
-    const fetchData = async (page,size) => {
+    const fetchData = async (page, size) => {
       setLoading(true)
       try {
-          // Fetch data from all endpoints concurrently
-          const [sdResponse, qaResponse, mailResponse, edpResponse, accountsResponse, studyResponse] = await Promise.all([
-              fetch(`http://localhost:3030/sd?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/qa?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/mailCommunication?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/edp?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/accounts?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/study?page=${page}&size=${size}`)
-          ]);
-          
-          
-           const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
-            sdResponse.json(),
-            qaResponse.json(),
-            mailResponse.json(),
-            edpResponse.json(),
-            accountsResponse.json(),
-            studyResponse.json()
+        // Fetch data from all endpoints concurrently
+        const [sdResponse, qaResponse, mailResponse, edpResponse, accountsResponse, studyResponse] = await Promise.all([
+          fetch(`http://localhost:3030/sd?page=${page}&size=${size}`),
+          fetch(`http://localhost:3030/qa?page=${page}&size=${size}`),
+          fetch(`http://localhost:3030/mailCommunication?page=${page}&size=${size}`),
+          fetch(`http://localhost:3030/edp?page=${page}&size=${size}`),
+          fetch(`http://localhost:3030/accounts?page=${page}&size=${size}`),
+          fetch(`http://localhost:3030/study?page=${page}&size=${size}`)
+        ]);
+
+
+        const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
+          sdResponse.json(),
+          qaResponse.json(),
+          mailResponse.json(),
+          edpResponse.json(),
+          accountsResponse.json(),
+          studyResponse.json()
         ]);
         console.log(studyResult)
         setTotalRecords(studyResult.totalItems);
-       
+
 
         // Create maps for faster lookup
         const qaMap = new Map(qaResult.data.map(item => [item.study_number, item]));
@@ -75,7 +76,7 @@ export default function AllTestView(props) {
         const edpMap = new Map(edpResult.data.map(item => [item.study_number, item]));
         const accountsMap = new Map(accountsResult.data.map(item => [item.study_number, item]));
         const sdMap = new Map(sdResult.data.map(item => [item.study_number, item]));
-        
+
         console.log(qaMap)
         const consolidation = studyResult.data.map(studyItem => ({
           ...studyItem,
@@ -86,83 +87,83 @@ export default function AllTestView(props) {
           ...sdMap.get(studyItem.study_number) || {},
         }))
 
-          // Set consolidated data to state
-          setProducts(consolidation);
-          setLoading(false)
+        // Set consolidated data to state
+        setProducts(consolidation);
+        setLoading(false)
       } catch (error) {
-          console.error('Error fetching data:', error);
-          setLoading(false);
+        console.error('Error fetching data:', error);
+        setLoading(false);
       }
-  };
+    };
 
-    fetchData(page,size);
-  }, [page,size]); // eslint-disable-line react-hooks/exhaustive-deps
+    fetchData(page, size);
+  }, [page, size]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
 
-  
+
   const textEditor = (options) => {
     const { field } = options;
     const dept = getDepartmentByField(field)
-      console.log('Coming here ', dept.toLowerCase(), userInfo, dept.toLowerCase === userInfo.role)
-      return (
-        <InputText
-          type="text"
-          value={options.value}
-          onChange={(e) => options.editorCallback(e.target.value)}
-          onKeyDown={(e) => e.stopPropagation()}
-          disabled={!(dept.toLowerCase() === userInfo.role)}
-        />
-      );
-};
+    console.log('Coming here ', dept.toLowerCase(), userInfo, dept.toLowerCase === userInfo.role)
+    return (
+      <InputText
+        type="text"
+        value={options.value}
+        onChange={(e) => options.editorCallback(e.target.value)}
+        onKeyDown={(e) => e.stopPropagation()}
+        disabled={!(dept.toLowerCase() === userInfo.role)}
+      />
+    );
+  };
 
-    const onPage = (event) => {
-      setPage(parseInt(event.first / size)); // Calculate page index
-      console.log(page)
-    };
+  const onPage = (event) => {
+    setPage(parseInt(event.first / size)); // Calculate page index
+    console.log(page)
+  };
 
-    const onPageSizeChange = (event) => {
-      setSize(parseInt(event.value));
-      setPage(0); // Reset to first page when size changes
-    };
+  const onPageSizeChange = (event) => {
+    setSize(parseInt(event.value));
+    setPage(0); // Reset to first page when size changes
+  };
 
   // Define the function to send the POST request
-async function sendData(id, data, department) {
-  console.log('This method is called', id)
-  const raw = JSON.stringify(data);
-  const dept = department !== 'MAIL COMMUNICATION' ? department.toLowerCase() : 'mailCommunication'
-  // if(dept === userInfo.role) {
-  try {
-    const response = await fetch(`http://localhost:3030/${dept}/${id}`, {
+  async function sendData(id, data, department) {
+    console.log('This method is called', id)
+    const raw = JSON.stringify(data);
+    const dept = department !== 'MAIL COMMUNICATION' ? department.toLowerCase() : 'mailCommunication'
+    // if(dept === userInfo.role) {
+    try {
+      const response = await fetch(`http://localhost:3030/${dept}/${id}`, {
         method: 'PUT', // Specify the request method
-      headers: {
-        'Content-Type': 'application/json' // Specify the content type as JSON
-      },
-      body: raw // Convert the id and data to a JSON string
-    });
+        headers: {
+          'Content-Type': 'application/json' // Specify the content type as JSON
+        },
+        body: raw // Convert the id and data to a JSON string
+      });
 
-    if (!response.ok) {
-      toast.current.show({ severity: 'error', summary: 'Info', detail: 'Update Failed. Please try again.' });
-      throw new Error('Network response was not ok');
+      if (!response.ok) {
+        toast.current.show({ severity: 'error', summary: 'Info', detail: 'Update Failed. Please try again.' });
+        throw new Error('Network response was not ok');
+      }
+
+      const result = await response.json(); // Parse the JSON response
+      console.log('Success:', result);
+      toast.current.show({ severity: 'success', summary: 'Info', detail: 'Update Successful' });
+      return result;
+    } catch (error) {
+      console.error('Error:', error);
     }
 
-    const result = await response.json(); // Parse the JSON response
-    console.log('Success:', result);
-    toast.current.show({ severity: 'success', summary: 'Info', detail: 'Update Successful' });
-    return result;
-  } catch (error) {
-    console.error('Error:', error);
+    // }
   }
-
-// }
-}
 
   function getDepartmentByField(field) {
     for (const column of columns) {
       if (column && column.field === field) {
-          return column.department || 'Field does not have a department';
+        return column.department || 'Field does not have a department';
       }
-  }
+    }
     return 'Field not found';
   }
 
@@ -171,22 +172,22 @@ async function sendData(id, data, department) {
     let { rowData, newValue, field, originalEvent: event } = e;
     const study_number = rowData.study_number;
     const department = getDepartmentByField(field)
-    
+
     const data = {
       [field]: newValue,
-      updated_by: userInfo.name, 
+      updated_by: userInfo.name,
       update_dttm: new Date()
-  };
+    };
     try {
-    const res = await sendData(study_number, data, department);
-    setLoading(false)
-    // fetchData(page,size)
-    return res
+      const res = await sendData(study_number, data, department);
+      setLoading(false)
+      // fetchData(page,size)
+      return res
     } catch (e) {
       setLoading(false)
       return e
     }
-  } 
+  }
 
 
   function formatDate(dateString) {
@@ -200,7 +201,7 @@ async function sendData(id, data, department) {
 
     // Return the formatted date string
     return `${year}-${month}-${day}`;
-}
+  }
 
   const updateDate = async (id, field, newDate) => {
     // setLoading(true)
@@ -209,22 +210,22 @@ async function sendData(id, data, department) {
     const requestDate = formatDate(newDate)
     console.log(userInfo?.role)
     const data = {
-      [field]: requestDate, 
-      updated_by: userInfo?.name, 
+      [field]: requestDate,
+      updated_by: userInfo?.name,
       update_dttm: new Date()
     };
     try {
-    const res = await sendData(id, data, department);
-    // setLoading(false)
-    return res
-    } catch(e) {
+      const res = await sendData(id, data, department);
+      // setLoading(false)
+      return res
+    } catch (e) {
       // setLoading(false)
       return e
     }
   };
 
   const parseDate = (dateStr) => {
-    if(dateStr === undefined || null ) {
+    if (dateStr === undefined || null) {
       return;
     }
     if (typeof dateStr === "object" && dateStr instanceof Date) {
@@ -241,17 +242,17 @@ async function sendData(id, data, department) {
   // Custom body template to render the Calendar component
   const dateTemplate = (rowData, field) => {
     try {
-    const dept = getDepartmentByField(field)
-    const dep = dept.toLowerCase()
-    const dateValue = rowData[field] ? parseDate(rowData[field]) : null
-    return (
-      <Calendar
-        value={dateValue}
-        onChange={(e) => updateDate(rowData.study_number, field, e.value)}
-        dateFormat="MM dd,yy"
+      const dept = getDepartmentByField(field)
+      const dep = dept.toLowerCase()
+      const dateValue = rowData[field] ? parseDate(rowData[field]) : null
+      return (
+        <Calendar
+          value={dateValue}
+          onChange={(e) => updateDate(rowData.study_number, field, e.value)}
+          dateFormat="MM dd,yy"
         // disabled={!(dep === userInfo.role)}
-      />
-    );
+        />
+      );
     } catch (e) {
       console.log(e)
     }
@@ -269,7 +270,7 @@ async function sendData(id, data, department) {
 
   const headerGroup = (
     <ColumnGroup>
-       <Row>
+      <Row>
         {columns.map(({ department }) => {
           return (
             <Column
@@ -301,77 +302,92 @@ async function sendData(id, data, department) {
 
   const rowsOptions = [5, 10, 25, 50]
   return (
-      <div>
+    <>
       <Header {...userInfo} />
-      <FunctionalHeader products={products} setProducts={setProducts} />
-      <div style={{ marginTop: "10px" }}>
-        <div className="flex justify-content-between"> 
-        
-        <select value={size} onChange={(e) => onPageSizeChange(e.target)}>
-        <span>Rows per page: </span>
-          {[10,25,50].map((pageSize) => (
+      <span style={{
+        display: "flex",
+        padding: "20px",
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '10px',
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: "cover"
+      }}>
+
+        <FunctionalHeader products={products} setProducts={setProducts} />
+        {/* <div style={{ marginTop: "10px" }}> */}
+        {/* <div className="flex justify-content-between"> */}
+
+        <select
+          value={size}
+          style={{ marginTop: '10px' }}
+          onChange={(e) => onPageSizeChange(e.target)}>
+          <span>Rows per page: </span>
+          {[10, 25, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
               {pageSize}
             </option>
           ))}
         </select>
-      </div>
-      </div>
+        {/* </div> */}
+        {/* </div> */}
+      </span>
       {/* <div style={{ marginTop: '20px' }}></div> */}
       {/* {userInfo ?  */}
       <>
-      <Toast ref={toast} />
-      <DataTable
-      scrollable
-        showGridlines
-        value={products}
-        // header={renderHeader}
-        editMode="cell"
-        resizableColumns
-        tableStyle={{ minWidth: "50rem" }}
-        removableSort
-        paginator
-        rows={size}
-        first={page * size}
-        rowsPerPageOptions={rowsOptions}
-        onPageSizeChange={onPageSizeChange}
-        ref={dt}
-        headerColumnGroup={headerGroup}
-        loading={loading}
-        // scrollHeight="1000px"
-        // paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
-        lazy
-        onPage={onPage}
-        totalRecords={totalRecords}
-      >
+        <Toast ref={toast} />
+        <DataTable
+          scrollable
+          showGridlines
+          value={products}
+          // header={renderHeader}
+          editMode="cell"
+          resizableColumns
+          tableStyle={{ minWidth: "50rem" }}
+          removableSort
+          paginator
+          rows={size}
+          first={page * size}
+          rowsPerPageOptions={rowsOptions}
+          onPageSizeChange={onPageSizeChange}
+          ref={dt}
+          headerColumnGroup={headerGroup}
+          loading={loading}
+          // scrollHeight="1000px"
+          // paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
+          lazy
+          onPage={onPage}
+          totalRecords={totalRecords}
+        >
 
-        {columns.map(({ field, header, type, freeze, department }) => {
-          return type == "date" ? (
-            <Column
-              key={field}
-              header={header}
-              field={field}
-              body={(rowData) => dateTemplate(rowData, field)}
-              onCellEditComplete={onCellEditComplete}
-            />
-          ) : (
-            <Column
-              key={field}
-              field={field}
-              header={header}
-              frozen={freeze}
-              alignFrozen="left"
-              sortable={true}
-              style={{ width: "25%", zIndex: 2 }}
+          {columns.map(({ field, header, type, freeze, department }) => {
+            return type == "date" ? (
+              <Column
+                key={field}
+                header={header}
+                field={field}
+                body={(rowData) => dateTemplate(rowData, field)}
+                onCellEditComplete={onCellEditComplete}
+              />
+            ) : (
+              <Column
+                key={field}
+                field={field}
+                header={header}
+                frozen={freeze}
+                alignFrozen="left"
+                sortable={true}
+                style={{ width: "25%", zIndex: 2 }}
               // editor={(options) => textEditor(options)}
               // onCellEditComplete={onCellEditComplete}
-            />
-          );
-        })}
-      </DataTable>
-      </> 
-       {/* : <Login10 /> */}
-{/* } */}
-    </div>
+              />
+            );
+          })}
+        </DataTable>
+      </>
+      {/* : <Login10 /> */}
+      {/* } */}
+    </>
   );
 }

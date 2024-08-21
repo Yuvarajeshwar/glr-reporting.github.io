@@ -1,6 +1,12 @@
-.p-datatable-frozen-view {
-    z-index: 2; /* Ensure this is higher than non-frozen content */
+* {
+    font-family: "Inter", sans-serif;
 }
+
+.p-datatable-frozen-view {
+    z-index: 2;
+    /* Ensure this is higher than non-frozen content */
+}
+
 .p-datatable-scrollable-view {
     z-index: 1;
 }

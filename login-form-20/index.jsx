@@ -1,8 +1,10 @@
 import React from 'react';
 import { useState } from 'react';
 import './css/style.css'; // Assuming you have a CSS file for additional styles
-import backgroundImage from './images/bg.jpg'
+// import backgroundImage from './images/bg.jpg'
+import backgroundImage from '../src/assets/background.webp'
 import { useNavigate } from 'react-router-dom';
+import GLR from '../src/assets/GLR.png';
 
 const Login10 = () => {
 
@@ -15,51 +17,51 @@ const Login10 = () => {
   async function loginUserAndGetInfo(loginUrl, userInfoUrl, credentials) {
     // setisLoggedIn(false)
     try {
-        // Step 1: Login to get the token
-        const loginResponse = await fetch(loginUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(credentials)
-        });
+      // Step 1: Login to get the token
+      const loginResponse = await fetch(loginUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+      });
 
-        // Check if the login response is successful
-        if (!loginResponse.ok) {
-            throw new Error('Login failed');
+      // Check if the login response is successful
+      if (!loginResponse.ok) {
+        throw new Error('Login failed');
+      }
+
+      // Get the token from the login response
+      const loginData = await loginResponse.json();
+      const token = loginData.token; // Adjust this based on your API response structure
+
+      console.log(token)
+
+      // Step 2: Use the token to get user info
+      const userInfoResponse = await fetch(userInfoUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Use the token in the Authorization header
+          'Content-Type': 'application/json'
         }
+      });
+      console.log(userInfoResponse)
+      // Check if the user info response is successful
+      if (!userInfoResponse.ok) {
+        throw new Error('Failed to retrieve user info');
+      }
 
-        // Get the token from the login response
-        const loginData = await loginResponse.json();
-        const token = loginData.token; // Adjust this based on your API response structure
+      // Get user info from the response
+      const userInfo = await userInfoResponse.json();
 
-        console.log(token)
-
-        // Step 2: Use the token to get user info
-        const userInfoResponse = await fetch(userInfoUrl, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`, // Use the token in the Authorization header
-                'Content-Type': 'application/json'
-            }
-        });
-        console.log(userInfoResponse)
-        // Check if the user info response is successful
-        if (!userInfoResponse.ok) {
-            throw new Error('Failed to retrieve user info');
-        }
-
-        // Get user info from the response
-        const userInfo = await userInfoResponse.json();
-
-        // Return user info
-        return userInfo;
+      // Return user info
+      return userInfo;
 
     } catch (error) {
-        console.error('Error:', error);
-        return null;
+      console.error('Error:', error);
+      return null;
     }
-}
+  }
 
 
   const handleSubmit = (e) => {
@@ -72,20 +74,20 @@ const Login10 = () => {
     const loginUrl = 'https://glr-staged.infantsurya.in/v1/user/login';
     const userInfoUrl = 'https://glr-staged.infantsurya.in/v1//user/precheck';
     const credentials = {
-        email: email,
-        password: password
+      email: email,
+      password: password
     };
 
-        loginUserAndGetInfo(loginUrl, userInfoUrl, credentials)
-        .then(userInfo => {
+    loginUserAndGetInfo(loginUrl, userInfoUrl, credentials)
+      .then(userInfo => {
         if (userInfo) {
-            console.log('User Info:', userInfo);
-            // setisLoggedIn(true)
-            navigate('/tracker', { state: userInfo });
+          console.log('User Info:', userInfo);
+          // setisLoggedIn(true)
+          navigate('/tracker', { state: userInfo });
         } else {
-            console.log('Failed to get user info');
+          console.log('Failed to get user info');
         }
-    });
+      });
 
   }
 
@@ -100,6 +102,9 @@ const Login10 = () => {
   return (
     <html lang="en">
       <head>
+        <React.Fragment>
+          <img src={GLR} />
+        </React.Fragment>
         <title>GLR REPORTING</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -107,7 +112,9 @@ const Login10 = () => {
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
         <link rel="stylesheet" href="css/style.css" />
       </head>
-      <body className="img js-fullheight" style={{ backgroundImage: `url(${backgroundImage})` }}>
+      <body className="img js-fullheight"
+        style={{ backgroundImage: `url(${backgroundImage})` }}
+      >
         <section className="ftco-section">
           <div className="container">
             <div className="row justify-content-center">
@@ -124,7 +131,7 @@ const Login10 = () => {
                       <input type="text" className="form-control" placeholder="Username" required onChange={updateEmail} />
                     </div>
                     <div className="form-group">
-                      <input id="password-field" type="password" className="form-control" placeholder="Password" required onChange={updatePassword}/>
+                      <input id="password-field" type="password" className="form-control" placeholder="Password" required onChange={updatePassword} />
                       <span className="fa fa-fw fa-eye field-icon toggle-password" toggle="#password-field"></span>
                     </div>
                     <div className="form-group">
