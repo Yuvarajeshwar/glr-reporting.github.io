@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import ReactDataGrid from 'react-data-grid';
 import { useLocation } from 'react-router-dom';
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
@@ -6,8 +7,9 @@ import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { Calendar } from "primereact/calendar";
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon'; 
+
+import { parse } from 'date-fns';
+import Datagrid from './Datagrid'
 
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
@@ -16,6 +18,11 @@ import FunctionalHeader from "./FunctionalHeader";
 import { columnsDefinition } from "./ColumnsDef";
 import './AllTestView.css'
 // import Login10 from "../../login-form-20";
+import { IconField } from 'primereact/iconfield';
+
+import { InputIcon } from 'primereact/inputicon';
+
+import backgroundImage from '../assets/background.webp'
 
 
 export default function AllTestView(props) {
@@ -26,8 +33,46 @@ export default function AllTestView(props) {
   const [size, setSize] = useState(3);
   const [totalRecords, setTotalRecords] = useState(0);
   const [filterText, setFilterText] = useState(""); 
+  const [editingCell, setEditingCell] = useState(null);
+  // const [tempDate, setTempDate] = useState(null);
 
-  const columns = columnsDefinition
+  // const handleCellClick = (rowData, column) => {
+  //   setEditingCell({ rowData, column });
+  //   // setTempDate(rowData[column.field]);
+  // };
+  
+
+  // const columns = columnsDefinition
+
+  // const columns = columnsDefinition.map(col => ({
+  //   key: col.key,
+  //   name: col.name,
+  //   sortable: col.sortable,
+  //   frozen: col.freeze, // 'freeze' property should be mapped to 'frozen'
+  //   formatter: col.type === 'date' ? ({ row }) => formatDate(row[col.key]) : undefined,
+  //   editorRenderer: col.type === 'date' ? DateEditor : undefined,
+  // }));
+  
+  // // Date formatting helper
+  // const formatDate = (dateString) => {
+  //   return dateString ? format(new Date(dateString), 'MM/dd/yyyy') : '';
+  // };
+  
+  // Custom Date Editor Component
+  const DateEditor = ({ row, column, onRowChange }) => {
+    const handleChange = (e) => {
+      const value = e.target.value;
+      onRowChange({ ...row, [column.key]: value });
+    };
+    
+    return (
+      <input
+        type="date"
+        value={row[column.key] || ''}
+        onChange={handleChange}
+      />
+    );
+  };
 
   const location = useLocation();
   const userInfo = location.state?.user
@@ -35,59 +80,68 @@ export default function AllTestView(props) {
   const dt = useRef(null);
   const toast = useRef(null);
 
-   // Filter products based on study_number
-   const filteredProducts = filterText
-    ? products.filter(product =>
-        product.study_number && product.study_number.toString().toLowerCase().includes(filterText.toLowerCase())
-      )
-    : products;
 
   useEffect(() => {
     const fetchData = async (page,size) => {
+      console.log('This is')
       setLoading(true)
       try {
+        const startTime = new Date().getTime(); 
           // Fetch data from all endpoints concurrently
-          const [sdResponse, qaResponse, mailResponse, edpResponse, accountsResponse, studyResponse] = await Promise.all([
-              fetch(`http://localhost:3030/sd?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/qa?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/mailCommunication?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/edp?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/accounts?page=${page}&size=${size}`),
-              fetch(`http://localhost:3030/study?page=${page}&size=${size}`)
-          ]);
+          // const [sdResponse, qaResponse, mailResponse, edpResponse, accountsResponse, studyResponse] = await Promise.all([
+          //     fetch(`http://localhost:3030/sd?page=${page}&size=${size}`),
+          //     fetch(`http://localhost:3030/qa?page=${page}&size=${size}`),
+          //     fetch(`http://localhost:3030/mailCommunication?page=${page}&size=${size}`),
+          //     fetch(`http://localhost:3030/edp?page=${page}&size=${size}`),
+          //     fetch(`http://localhost:3030/accounts?page=${page}&size=${size}`),
+          //     fetch(`http://localhost:3030/study?page=${page}&size=${size}`)
+          // ]);
+          // const studyResponse = await fetch(`http://localhost:3030/study?page=${page}&size=${size}`)
+          // console.log(studyResponse)
+
+        const response = await fetch(`http://localhost:3030/study?page=${page}&size=${size}`);
+        const result = await response.json();
+        
+        // Extract the relevant data
+        const { data, totalItems, totalPages, currentPage, pageSize } = result;
           
           
-           const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
-            sdResponse.json(),
-            qaResponse.json(),
-            mailResponse.json(),
-            edpResponse.json(),
-            accountsResponse.json(),
-            studyResponse.json()
-        ]);
-        console.log(studyResult)
-        setTotalRecords(studyResult.totalItems);
+            
+           
+        //    const [sdResult, qaResult, mailResult, edpResult, accountsResult, studyResult] = await Promise.all([
+        //     sdResponse.json(),
+        //     qaResponse.json(),
+        //     mailResponse.json(),
+        //     edpResponse.json(),
+        //     accountsResponse.json(),
+        //     studyResponse.json()
+        // ]);
+        // console.log(studyResult)
+        // setTotalRecords(studyResult.totalItems);
        
 
-        // Create maps for faster lookup
-        const qaMap = new Map(qaResult.data.map(item => [item.study_number, item]));
-        const mailMap = new Map(mailResult.data.map(item => [item.study_number, item]));
-        const edpMap = new Map(edpResult.data.map(item => [item.study_number, item]));
-        const accountsMap = new Map(accountsResult.data.map(item => [item.study_number, item]));
-        const sdMap = new Map(sdResult.data.map(item => [item.study_number, item]));
+        // // Create maps for faster lookup
+        // const qaMap = new Map(qaResult.data.map(item => [item.study_number, item]));
+        // const mailMap = new Map(mailResult.data.map(item => [item.study_number, item]));
+        // const edpMap = new Map(edpResult.data.map(item => [item.study_number, item]));
+        // const accountsMap = new Map(accountsResult.data.map(item => [item.study_number, item]));
+        // const sdMap = new Map(sdResult.data.map(item => [item.study_number, item]));
         
-        console.log(qaMap)
-        const consolidation = studyResult.data.map(studyItem => ({
-          ...studyItem,
-          ...qaMap.get(studyItem.study_number) || {}, // Merge with QA data if available
-          ...mailMap.get(studyItem.study_number) || {}, // Merge with Mail data if available
-          ...edpMap.get(studyItem.study_number) || {}, // Merge with EDP data if available
-          ...accountsMap.get(studyItem.study_number) || {}, // Merge with Accounts data if available
-          ...sdMap.get(studyItem.study_number) || {},
-        }))
-
+        // console.log(qaMap)
+        // const consolidation = studyResult.data.map(studyItem => ({
+        //   ...studyItem,
+        //   ...qaMap.get(studyItem.study_number) || {}, // Merge with QA data if available
+        //   ...mailMap.get(studyItem.study_number) || {}, // Merge with Mail data if available
+        //   ...edpMap.get(studyItem.study_number) || {}, // Merge with EDP data if available
+        //   ...accountsMap.get(studyItem.study_number) || {}, // Merge with Accounts data if available
+        //   ...sdMap.get(studyItem.study_number) || {},
+        // }))
+        
           // Set consolidated data to state
-          setProducts(consolidation);
+          const endTime = new Date().getTime();
+          setProducts(data);
+          const timeTaken = endTime - startTime;
+          console.log(timeTaken)
           setLoading(false)
       } catch (error) {
           console.error('Error fetching data:', error);
@@ -96,6 +150,7 @@ export default function AllTestView(props) {
   };
 
     fetchData(page,size);
+    
   }, [page,size]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -168,7 +223,7 @@ async function sendData(id, data, department) {
 
   const onCellEditComplete = async (e) => {
     setLoading(true)
-    let { rowData, newValue, field, originalEvent: event } = e;
+    let { rowData, newValue, field, originalEvent: event, column } = e;
     const study_number = rowData.study_number;
     const department = getDepartmentByField(field)
     
@@ -223,38 +278,32 @@ async function sendData(id, data, department) {
     }
   };
 
-  const parseDate = (dateStr) => {
-    if(dateStr === undefined || null ) {
-      return;
-    }
-    if (typeof dateStr === "object" && dateStr instanceof Date) {
-      const day = dateStr.getDate().toString().padStart(2, "0");
-      const month = (dateStr.getMonth() + 1).toString().padStart(2, "0"); // Months are 0-based
-      const year = dateStr.getFullYear();
-      dateStr = `${day}/${month}/${year}`;
-    }
-
-    const [year, month, day] = dateStr.split("-").map(Number);
-    return new Date(year, month - 1, day);
-  };
 
   // Custom body template to render the Calendar component
   const dateTemplate = (rowData, field) => {
-    try {
-    const dept = getDepartmentByField(field)
-    const dep = dept.toLowerCase()
-    const dateValue = rowData[field] ? parseDate(rowData[field]) : null
-    return (
-      <Calendar
-        value={dateValue}
-        onChange={(e) => updateDate(rowData.study_number, field, e.value)}
-        dateFormat="MM dd,yy"
-        // disabled={!(dep === userInfo.role)}
-      />
-    );
-    } catch (e) {
-      console.log(e)
-    }
+    // try {
+    // const dept = getDepartmentByField(field)
+    // const endTime = new Date().getTime();
+    
+    // const dep = dept.toLowerCase()
+    // const dateValue1 = rowData[field] ? rowData[field] : null
+    // console.log('One and two ', rowData['draft_study_plan_sent_to_qa']) 
+    // console.log(rowData, dateValue1)
+    // const dateValue = dateValue1 ? parse(dateValue1, 'MMMM d, yyyy', new Date()) : null;
+    // // const dateValue = rowData[field] ? parseDate(rowData[field]) : null
+    // // if (editingCell && editingCell.rowData.id === rowData.id && editingCell.column.field === column.field) {
+    // return (
+    //   <Calendar
+    //     value={dateValue}
+    //     onChange={(e) => updateDate(rowData.study_number, field, e.value)}
+    //     dateFormat="MM dd,yy"
+    //     // disabled={!(dep === 'sd')}
+    //   />
+    // );
+    // // }
+    // } catch (e) {
+    //   console.log(e)
+    // }
   };
 
 
@@ -300,78 +349,96 @@ async function sendData(id, data, department) {
   );
 
   const rowsOptions = [5, 10, 25, 50]
+
   return (
-      <div>
+    <>
       <Header {...userInfo} />
-      <FunctionalHeader products={products} setProducts={setProducts} />
-      <div style={{ marginTop: "10px" }}>
-        <div className="flex justify-content-between"> 
-        
-        <select value={size} onChange={(e) => onPageSizeChange(e.target)}>
-        <span>Rows per page: </span>
-          {[10,25,50].map((pageSize) => (
+      <span style={{
+        display: "flex",
+        padding: "20px",
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '10px',
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: "cover"
+      }}>
+
+        <FunctionalHeader products={products} setProducts={setProducts} />
+        {/* <div style={{ marginTop: "10px" }}> */}
+        {/* <div className="flex justify-content-between"> */}
+
+        <select
+          value={size}
+          style={{ marginTop: '10px' }}
+          onChange={(e) => onPageSizeChange(e.target)}>
+          <span>Rows per page: </span>
+          {[10, 25, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
               {pageSize}
             </option>
           ))}
         </select>
-      </div>
-      </div>
+        {/* </div> */}
+        {/* </div> */}
+      </span>
       {/* <div style={{ marginTop: '20px' }}></div> */}
       {/* {userInfo ?  */}
       <>
-      <Toast ref={toast} />
-      <DataTable
-      scrollable
-        showGridlines
-        value={products}
-        // header={renderHeader}
-        editMode="cell"
-        resizableColumns
-        tableStyle={{ minWidth: "50rem" }}
-        removableSort
-        paginator
-        rows={size}
-        first={page * size}
-        rowsPerPageOptions={rowsOptions}
-        onPageSizeChange={onPageSizeChange}
-        ref={dt}
-        headerColumnGroup={headerGroup}
-        loading={loading}
-        // scrollHeight="1000px"
-        // paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
-        lazy
-        onPage={onPage}
-        totalRecords={totalRecords}
-      >
+        <Toast ref={toast} />
+        {/* <DataTable
+          scrollable
+          showGridlines
+          value={products}
+          // header={renderHeader}
+          editMode="cell"
+          resizableColumns
+          tableStyle={{ minWidth: "50rem" }}
+          removableSort
+          paginator
+          rows={size}
+          first={page * size}
+          rowsPerPageOptions={rowsOptions}
+          onPageSizeChange={onPageSizeChange}
+          ref={dt}
+          headerColumnGroup={headerGroup}
+          loading={loading}
+          // scrollHeight="1000px"
+          // paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
+          lazy
+          onPage={onPage}
+          totalRecords={totalRecords}
+        >
 
-        {columns.map(({ field, header, type, freeze, department }) => {
-          return type == "date" ? (
-            <Column
-              key={field}
-              header={header}
-              field={field}
-              body={(rowData) => dateTemplate(rowData, field)}
-              onCellEditComplete={onCellEditComplete}
-            />
-          ) : (
-            <Column
-              key={field}
-              field={field}
-              header={header}
-              frozen={freeze}
-              alignFrozen="left"
-              sortable={true}
-              style={{ width: "25%", zIndex: 2 }}
-              // editor={(options) => textEditor(options)}
-              // onCellEditComplete={onCellEditComplete}
-            />
-          );
-        })}
-      </DataTable>
-      </> 
-       {/* : <Login10 /> */}
-{/* } */}
-    </div>
+          {columns.map(({ field, header, type, freeze, department }) => {
+            return type == "date" && department === 'SD' ? (
+              <Column
+                key={field}
+                header={header}
+                field={field}
+                body={(rowData) => dateTemplate(rowData, field)}
+                on
+                onCellEditComplete={onCellEditComplete}
+              />
+            ) : (
+              <Column
+                key={field}
+                field={field}
+                header={header}
+                frozen={freeze}
+                alignFrozen="left"
+                sortable={true}
+                style={{ width: "25%", zIndex: 2 }}
+              />
+            );
+          })}
+        </DataTable> */}
+       <Datagrid />
+
+      </>
+      {/* : <Login10 /> */}
+      {/* } */}
+    </>
+      
   );
 }

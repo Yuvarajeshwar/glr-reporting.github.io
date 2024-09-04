@@ -115,7 +115,7 @@ async function loginUserAndGetInfo(loginUrl, userInfoUrl, credentials) {
         if (userInfo) {
             console.log('User Info:', userInfo);
             // setisLoggedIn(true)
-            navigate('/', { state: userInfo });
+            navigate('/glrTracker', { state: userInfo });
         } else {
             console.log('Failed to get user info');
         }

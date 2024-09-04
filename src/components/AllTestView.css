@@ -44,3 +44,38 @@
     width: 20px;
     height: 20px;
 }
+
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+.editable-cell {
+    background-color: #e0f7fa; /* Light cyan color for editable cells */
+  }
+  .button-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between items */
+    padding: 20px;
+    background-color: #1f1f1f;
+  }
+  
+  
+.logo {
+    max-width: 200px; /* Set a maximum width for the image */
+    max-height: 1000px; /* Set a maximum height for the image */
+    margin-right: 10px; /* Space between image and button */
+    /* object-fit: contain; Ensure the image scales properly without distortion */
+  }
+  
+  .left-button {
+    margin-left: 10px; /* Space between the "Add New Row" button and the image */
+  }
+  
+  .right-button {
+    margin-left: auto; /* Pushes the button to the right */
+  }

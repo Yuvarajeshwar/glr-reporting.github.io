@@ -13,8 +13,10 @@
     background-color: #fff;
     padding: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin: 0 auto; /* Center the container horizontally */
-    width: 500px; /* Set a specific width for the search container */
+    margin: 0 auto;
+    /* Center the container horizontally */
+    width: 500px;
+    /* Set a specific width for the search container */
 }
 
 .dropdown {
