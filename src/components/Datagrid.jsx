@@ -190,14 +190,7 @@ const Datagrid = () => {
     onClick={exportToCSV}
     data-pr-tooltip="Export CSV"
   />
-  {/* <Button
-    className="logout-button"
-    label="Logout"
-    type="button"
-    rounded
-    // onClick={handleLogout} // Replace with actual logout function
-    data-pr-tooltip="Logout"
-  /> */}
+  {/* - */}
 </span>
       <div className="ag-theme-quartz" style={{ height: 1500, width: '100%' }}>
         <AgGridReact
