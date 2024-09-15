@@ -4,7 +4,7 @@ import 'ag-grid-community/styles/ag-grid.css'; // Core grid styles
 import 'ag-grid-community/styles/ag-theme-quartz.css'; // Theme styles
 import { columnsDefinition } from './ColumnsDef';
 import { Toast } from "primereact/toast";
-import './AllTestView.css';
+import './Datagrid.css';
 import { Button } from "primereact/button";
 import { useLocation } from 'react-router-dom';
 import GLR from '../assets/GLR-1.png';

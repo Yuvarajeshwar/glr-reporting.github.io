@@ -1,7 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import './css/style.css'; // Assuming you have a CSS file for additional styles
-// import backgroundImage from './images/bg.jpg'
+import './css/style.css';
 import backgroundImage from '../src/assets/background.webp'
 import { useNavigate } from 'react-router-dom';
 import GLR from '../src/assets/GLR.png';
