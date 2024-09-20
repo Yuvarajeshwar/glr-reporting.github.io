@@ -8,6 +8,7 @@ import './Datagrid.css';
 import { Button } from "primereact/button";
 import { useLocation } from 'react-router-dom';
 import GLR from '../assets/GLR-1.png';
+import Login10 from '../../login-form-20';
 
 const dateFormatter = (params) => {
   if (!params.value) return '';
@@ -56,7 +57,7 @@ const Datagrid = () => {
         cellEditor: col.type === "date" ? 'agDateCellEditor' : 'agTextCellEditor', 
         valueFormatter: col.type === "date" ? dateFormatter : null,
         valueParser: col.type === "date" ? dateParser : null,
-        cellClass: col.department.toLowerCase() === userInfo?.role ? 'editable-cell' : null // Apply class for editable columns
+        cellClass: col.department.toLowerCase() === userInfo.role ? 'editable-cell' : null // Apply class for editable columns
       }));
   };
 
@@ -72,12 +73,6 @@ const Datagrid = () => {
         const { data } = result;
         setProducts(data);
 
-        // Optionally set user department based on your application logic
-        // Example:
-        // const departmentResponse = await fetch(`http://localhost:3030/user/department`);
-        // const departmentResult = await departmentResponse.json();
-        // setUserDepartment(departmentResult.department);
-
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -91,6 +86,10 @@ const Datagrid = () => {
     const dept = department !== 'MAIL COMMUNICATION' ? department.toLowerCase() : 'mailCommunication';
 
     try {
+      if(!id) {
+        toast.current.show({ severity: 'error', summary: 'Info', detail: 'Study number is missing for the requested update.' });
+        return;
+      }
       const response = await fetch(`http://localhost:3030/${dept}/${id}`, {
         method: 'PUT',
         headers: {
@@ -115,16 +114,9 @@ const Datagrid = () => {
   const handleCellValueChanged = (event) => {
     const { data, colDef, newValue, oldValue } = event;
 
-    console.log(`Changed cell from ${oldValue} to ${newValue} in column ${colDef.field}`);
-
-    if (colDef.field === 'someField' && newValue < 0) {
-      alert('Value cannot be negative');
-      event.node.setDataValue(colDef.field, oldValue);
-    }
-
     const datasent = {
       [colDef.field]: newValue,
-      updated_by: 'SD',
+      updated_by: userInfo.name,
       update_dttm: new Date()
     };
 
@@ -138,6 +130,7 @@ const Datagrid = () => {
     }
 
     const department = getDepartmentByField(colDef.field);
+    if(userInfo.role) {
     sendData(data.study_number, datasent, department)
       .then(response => {
         console.log(response);
@@ -145,6 +138,7 @@ const Datagrid = () => {
       .catch(error => {
         console.error('Error sending data:', error);
       });
+    }
   };
 
   const onGridReady = (params) => {
@@ -190,9 +184,9 @@ const Datagrid = () => {
     onClick={exportToCSV}
     data-pr-tooltip="Export CSV"
   />
-  {/* - */}
 </span>
       <div className="ag-theme-quartz" style={{ height: 1500, width: '100%' }}>
+        {userInfo ?
         <AgGridReact
           columnDefs={columnDefs}
           rowData={products}
@@ -205,7 +199,8 @@ const Datagrid = () => {
           rowClassRules={{
             'fixed-row': params => params.rowIndex === 0
           }}
-        />
+        /> : <Login10 />
+}
       </div>
     </>
   );

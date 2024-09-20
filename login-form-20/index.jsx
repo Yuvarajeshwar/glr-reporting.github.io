@@ -1,9 +1,11 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import './css/style.css';
 import backgroundImage from '../src/assets/background.webp'
 import { useNavigate } from 'react-router-dom';
 import GLR from '../src/assets/GLR.png';
+import { Toast } from "primereact/toast";
+
 
 const Login10 = () => {
 
@@ -11,6 +13,7 @@ const Login10 = () => {
   const [password, setPassword] = useState("")
 
   const navigate = useNavigate();
+  const toast = useRef(null);
 
 
   async function loginUserAndGetInfo(loginUrl, userInfoUrl, credentials) {
@@ -35,7 +38,6 @@ const Login10 = () => {
       const loginData = await loginResponse.json();
       const token = loginData.token; // Adjust this based on your API response structure
 
-      console.log(token)
 
       // Step 2: Use the token to get user info
       const userInfoResponse = await fetch(userInfoUrl, {
@@ -45,7 +47,7 @@ const Login10 = () => {
           'Content-Type': 'application/json'
         }
       });
-      console.log(userInfoResponse)
+      
       // Check if the user info response is successful
       if (!userInfoResponse.ok) {
         throw new Error('Failed to retrieve user info');
@@ -54,6 +56,7 @@ const Login10 = () => {
       // Get user info from the response
       const userInfo = await userInfoResponse.json();
 
+      toast.current.show({ severity: 'success', summary: 'Info', detail: 'Login successful.' });
       // Return user info
       return userInfo;
 
@@ -67,10 +70,6 @@ const Login10 = () => {
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent default form submission behavior for single-page applications
 
-    // Here you can perform further logic such as validation or submitting data to a server
-    console.log("Email:", email);
-    console.log("Password:", password);
-
     const loginUrl = 'https://glr-staged.infantsurya.in/v1/user/login';
     const userInfoUrl = 'https://glr-staged.infantsurya.in/v1/user/precheck';
     const credentials = {
@@ -81,11 +80,11 @@ const Login10 = () => {
     loginUserAndGetInfo(loginUrl, userInfoUrl, credentials)
       .then(userInfo => {
         if (userInfo) {
-          console.log('User Info:', userInfo);
+          toast.current.show({ severity: 'success', summary: 'Info', detail: 'Login successful.' });
           // setisLoggedIn(true)
           navigate('/glrTracker', { state: userInfo });
         } else {
-          console.log('Failed to get user info');
+          toast.current.show({ severity: 'error', summary: 'Info', detail: 'Login Failed. Please try again later.' });
         }
       });
 
@@ -115,6 +114,7 @@ const Login10 = () => {
       <body className="img js-fullheight"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       >
+        <Toast ref={toast} />
         <section className="ftco-section">
           <div className="container">
             <div className="row justify-content-center">
@@ -125,7 +125,7 @@ const Login10 = () => {
             <div className="row justify-content-center">
               <div className="col-md-6 col-lg-4">
                 <div className="login-wrap p-0">
-                  <h3 className="mb-4 text-center">Have an account?</h3>
+
                   <form action="#" className="signin-form">
                     <div className="form-group">
                       <input type="text" className="form-control" placeholder="Username" required onChange={updateEmail} />
@@ -136,17 +136,6 @@ const Login10 = () => {
                     </div>
                     <div className="form-group">
                       <button type="submit" className="form-control btn btn-primary submit px-3" onClick={handleSubmit}>Sign In</button>
-                    </div>
-                    <div className="form-group d-md-flex">
-                      <div className="w-50">
-                        <label className="checkbox-wrap checkbox-primary">Remember Me
-                          <input type="checkbox" defaultChecked />
-                          <span className="checkmark"></span>
-                        </label>
-                      </div>
-                      <div className="w-50 text-md-right">
-                        <a href="#" style={{ color: '#fff' }}>Forgot Password</a>
-                      </div>
                     </div>
                   </form>
                 </div>
