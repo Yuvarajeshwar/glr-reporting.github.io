@@ -1,81 +1,79 @@
 .p-datatable-frozen-view {
-    z-index: 2; /* Ensure this is higher than non-frozen content */
+  z-index: 2; /* Ensure this is higher than non-frozen content */
 }
 .p-datatable-scrollable-view {
-    z-index: 1;
+  z-index: 1;
 }
 
 .search-container {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    padding: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  padding: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .dropdown {
-    border: none;
-    padding: 10px;
-    font-size: 16px;
-    border-right: 1px solid #ccc;
-    border-radius: 4px 0 0 4px;
-    outline: none;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  border-right: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  outline: none;
 }
 
 .search-input {
-    border: none;
-    padding: 10px;
-    font-size: 16px;
-    flex: 1;
-    outline: none;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  flex: 1;
+  outline: none;
 }
 
 .search-button {
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    padding: 10px;
-    outline: none;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 10px;
+  outline: none;
 }
 
 .search-icon {
-    width: 20px;
-    height: 20px;
+  width: 20px;
+  height: 20px;
 }
 
-
 .flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
 }
 
 .editable-cell {
-    background-color: #e0f7fa; /* Light cyan color for editable cells */
-  }
-  .button-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Space between items */
-    padding: 20px;
-    background-color: #1f1f1f;
-  }
-  
-  
+  background-color: #e0f7fa; /* Light cyan color for editable cells */
+}
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between items */
+  padding: 20px;
+  background-color: #1f1f1f;
+}
+
 .logo {
-    max-width: 200px; /* Set a maximum width for the image */
-    max-height: 1000px; /* Set a maximum height for the image */
-    margin-right: 10px; /* Space between image and button */
-    /* object-fit: contain; Ensure the image scales properly without distortion */
-  }
-  
-  .left-button {
-    margin-left: 10px; /* Space between the "Add New Row" button and the image */
-  }
-  
-  .right-button {
-    margin-left: auto; /* Pushes the button to the right */
-  }
+  max-width: 200px; /* Set a maximum width for the image */
+  max-height: 1000px; /* Set a maximum height for the image */
+  margin-right: 10px; /* Space between image and button */
+  /* object-fit: contain; Ensure the image scales properly without distortion */
+}
+
+.left-button {
+  margin-left: 10px; /* Space between the "Add New Row" button and the image */
+}
+
+.right-button {
+  margin-left: auto; /* Pushes the button to the right */
+}
