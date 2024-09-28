@@ -10,7 +10,7 @@ const LogViewer = () => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const response = await fetch('http://localhost:3030/logs')
+        const response = await fetch(`${import.meta.env.VITE_GLR_REPORTING_URL}/logs`)
         const data = await response.json()
         setLogs(data)
       } catch (error) {

@@ -75,7 +75,7 @@ const Datagrid = () => {
             ? { 'Content-Type': 'application/json', role: 'accounts' } // Add the custom 'Role' header
             : { 'Content-Type': 'application/json' } // Default header
 
-        const response = await fetch(`http://localhost:3030/study`, {
+        const response = await fetch(`${import.meta.env.VITE_GLR_REPORTING_URL}/study`, {
           method: 'GET', // Specify the method (default is GET)
           headers: headers, // Include the headers object
         })
@@ -109,7 +109,7 @@ const Datagrid = () => {
         })
         return
       }
-      const response = await fetch(`http://localhost:3030/${dept}/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_GLR_REPORTING_URL}/${dept}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
