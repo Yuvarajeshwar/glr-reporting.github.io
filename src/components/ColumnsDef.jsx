@@ -77,7 +77,7 @@ export const columnsDefinition = [
     },
   },
   {
-    field: 'tids_issued_to_TFM',
+    field: 'tids_issued_to_yaminy',
     headerName: 'TIDS Issued to TFM',
     type: 'date',
     sortable: false,
@@ -86,6 +86,14 @@ export const columnsDefinition = [
     cellEditor: 'agDateCellEditor',
     cellEditorParams: {
       format: 'dd-mmm-yyyy',
+    },
+    valueParser: (date) => {
+      // Convert date string to an array of dates
+      return date ? [date] : [] // Ensure it returns an array
+    },
+    valueGetter: (params) => {
+      // Return a formatted string of dates if it's an array
+      return params.data.tids_issued_to_yaminy.join(', ') || '' // Display array as string
     },
   },
   {
@@ -124,14 +132,9 @@ export const columnsDefinition = [
   {
     field: 'direct_reports',
     headerName: 'Direct Reports',
-    type: 'date',
+    type: 'text',
     sortable: false,
     department: 'MAIL COMMUNICATION',
-    editable: true,
-    cellEditor: 'agDateCellEditor',
-    cellEditorParams: {
-      format: 'dd mmm yyyy',
-    },
   },
   {
     field: 'sd_allotment_TFM_to_qa',

@@ -9,6 +9,7 @@ import { Button } from 'primereact/button'
 import { useLocation } from 'react-router-dom'
 import GLR from '../assets/GLR-1.png'
 import Login10 from '../../login-form-20'
+import CustomHeader from './CustomHeader'
 
 const dateFormatter = (params) => {
   if (!params.value) return ''
@@ -40,17 +41,20 @@ const Datagrid = () => {
 
   const transformColumns = (columns) => {
     return columns.map((col) => ({
-      headerName: col.headerName || col.name,
+      headerName: `${col.department}|${col.headerName || col.name}`, // Pass department and headerName separated by '|'
       field: col.field,
       sortable: col.sortable === 'true',
       pinned: col.freeze === 'true' ? 'left' : null,
-      editable: col.department.toLowerCase() === userInfo?.role ? true : false,
-      filter: true, // Enable filtering
+      editable: true,
+      filter: true,
       cellEditor: col.type === 'date' ? 'agDateCellEditor' : 'agTextCellEditor',
       valueFormatter: col.type === 'date' ? dateFormatter : null,
       valueParser: col.type === 'date' ? dateParser : null,
       cellClass:
         col.department.toLowerCase() === userInfo.role ? 'editable-cell' : null, // Apply class for editable columns
+
+      // Use CustomHeader component for the header
+      headerComponent: CustomHeader,
     }))
   }
 
@@ -59,7 +63,17 @@ const Datagrid = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:3030/study`)
+        // Check if the user role is 'accounts'
+        const headers =
+          userInfo.role === 'accounts'
+            ? { 'Content-Type': 'application/json', role: 'accounts' } // Add the custom 'Role' header
+            : { 'Content-Type': 'application/json' } // Default header
+
+        const response = await fetch(`http://localhost:3030/study`, {
+          method: 'GET', // Specify the method (default is GET)
+          headers: headers, // Include the headers object
+        })
+
         const result = await response.json()
 
         // Extract the relevant data
@@ -71,7 +85,7 @@ const Datagrid = () => {
     }
 
     fetchData()
-  }, [])
+  }, [userInfo?.role])
 
   const sendData = async (id, data, department) => {
     const raw = JSON.stringify(data)
@@ -200,6 +214,7 @@ const Datagrid = () => {
             pagination={true}
             paginationPageSize={10}
             singleClickEdit={true}
+            suppressMovableColumns={true}
             onCellValueChanged={handleCellValueChanged}
             onGridReady={onGridReady}
             domLayout="autoHeight"
