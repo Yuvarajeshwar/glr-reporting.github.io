@@ -1,0 +1,69 @@
+.log-viewer {
+  background-color: #f5f5f5; /* Light gray background */
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #333; /* Dark text color */
+}
+
+.filter-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.date-filters {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.date-filter-group {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.date-filter-group:last-child {
+  margin-right: 0; /* Remove margin for last child */
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555; /* Gray text for labels */
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.log-table th,
+.log-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd; /* Light border */
+}
+
+.log-table th {
+  background-color: #007bff; /* Bootstrap primary color */
+  color: white;
+}
+
+.log-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2; /* Alternate row color */
+}
+
+.log-table tbody tr:hover {
+  background-color: #e9e9e9; /* Hover color */
+}

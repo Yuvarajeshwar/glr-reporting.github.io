@@ -31,7 +31,6 @@ const dateParser = (params) => {
 const Datagrid = () => {
   const [products, setProducts] = useState([])
   const [gridApi, setGridApi] = useState(null)
-  const columnsDefinitiony = columnsDefinition
 
   const toast = useRef(null)
 
@@ -40,25 +39,32 @@ const Datagrid = () => {
   console.log(userInfo?.role)
 
   const transformColumns = (columns) => {
-    return columns.map((col) => ({
-      headerName: `${col.department}|${col.headerName || col.name}`, // Pass department and headerName separated by '|'
-      field: col.field,
-      sortable: col.sortable === 'true',
-      pinned: col.freeze === 'true' ? 'left' : null,
-      editable: true,
-      filter: true,
-      cellEditor: col.type === 'date' ? 'agDateCellEditor' : 'agTextCellEditor',
-      valueFormatter: col.type === 'date' ? dateFormatter : null,
-      valueParser: col.type === 'date' ? dateParser : null,
-      cellClass:
-        col.department.toLowerCase() === userInfo.role ? 'editable-cell' : null, // Apply class for editable columns
+    return columns
+      .filter(
+        (col) => userInfo.role === 'accounts' || col.department !== 'accounts'
+      ) // Filter out accounts columns if user is not in accounts
+      .map((col) => ({
+        headerName: `${col.department}|${col.headerName || col.name}`, // Pass department and headerName separated by '|'
+        field: col.field,
+        sortable: col.sortable === 'true',
+        pinned: col.freeze === 'true' ? 'left' : null,
+        editable: true,
+        filter: true,
+        cellEditor:
+          col.type === 'date' ? 'agDateCellEditor' : 'agTextCellEditor',
+        valueFormatter: col.type === 'date' ? dateFormatter : null,
+        valueParser: col.type === 'date' ? dateParser : null,
+        cellClass:
+          col.department.toLowerCase() === userInfo.role
+            ? 'editable-cell'
+            : null, // Apply class for editable columns
 
-      // Use CustomHeader component for the header
-      headerComponent: CustomHeader,
-    }))
+        // Use CustomHeader component for the header
+        headerComponent: CustomHeader,
+      }))
   }
 
-  const columnDefs = transformColumns(columnsDefinitiony)
+  const columnDefs = transformColumns(columnsDefinition)
 
   useEffect(() => {
     const fetchData = async () => {
