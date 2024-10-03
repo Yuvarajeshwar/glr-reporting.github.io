@@ -41,7 +41,7 @@ export const columnsDefinition = [
   },
   {
     field: 'sample_received_dttm',
-    headerName: 'Sample received date',
+    headerName: 'Sample received on',
     type: 'date',
     sortable: false,
     department: 'TICO',
@@ -54,7 +54,7 @@ export const columnsDefinition = [
   },
   {
     field: 'tids_received_dttm',
-    headerName: 'TIDS received date',
+    headerName: 'TIDS received on',
     type: 'date',
     sortable: false,
     department: 'TICO',
@@ -66,7 +66,7 @@ export const columnsDefinition = [
   },
   {
     field: 'scope_approval_dttm',
-    headerName: 'Scope approved date',
+    headerName: 'Scope approved on',
     type: 'date',
     sortable: false,
     department: 'TICO',
@@ -77,7 +77,7 @@ export const columnsDefinition = [
     },
   },
   {
-    field: 'tids_issued_to_yaminy',
+    field: 'tids_issued_to_tfm',
     headerName: 'TIDS issued to TFM',
     type: 'date',
     sortable: false,
@@ -86,14 +86,6 @@ export const columnsDefinition = [
     cellEditor: 'agDateCellEditor',
     cellEditorParams: {
       format: 'dd-mmm-yyyy',
-    },
-    valueParser: (date) => {
-      // Convert date string to an array of dates
-      return date ? [date] : [] // Ensure it returns an array
-    },
-    valueGetter: (params) => {
-      // Return a formatted string of dates if it's an array
-      return params.data.tids_issued_to_yaminy.join(', ') || '' // Display array as string
     },
   },
   {
@@ -137,7 +129,7 @@ export const columnsDefinition = [
     department: 'MAIL COMMUNICATION',
   },
   {
-    field: 'sd_allotment_TFM_to_qa',
+    field: 'sd_allotment_tfm_to_qa',
     headerName: 'SD allotment TFM issued to QA',
     type: 'date',
     sortable: false,
@@ -150,7 +142,7 @@ export const columnsDefinition = [
   },
   {
     field: 'study_alloted_to_qa',
-    headerName: 'Study alloted by QA (Date & Time)',
+    headerName: 'Study alloted to QA',
     type: 'date',
     sortable: false,
     department: 'EDP',
@@ -169,7 +161,7 @@ export const columnsDefinition = [
   },
   {
     field: 'study_plan_prepared_on',
-    headerName: 'Study plan prepared (Date)',
+    headerName: 'Study plan prepared ',
     type: 'date',
     sortable: false,
     department: 'EDP',
@@ -181,7 +173,7 @@ export const columnsDefinition = [
   },
   {
     field: 'study_plan_to_sd',
-    headerName: 'Study plan haand over to SD (Date)',
+    headerName: 'Study plan hand over to SD',
     type: 'date',
     sortable: false,
     department: 'EDP',
@@ -193,7 +185,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_study_plan_to_qa',
-    headerName: 'Draft study plan sent to QA (Date & Time)',
+    headerName: 'Draft study plan sent to QA',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -205,7 +197,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_study_plan_to_TFM_by_qa',
-    headerName: 'Draft study plan sent to TFM by QA (Date)',
+    headerName: 'Draft study plan sent to TFM by QA',
     type: 'date',
     sortable: false,
     department: 'QA',
@@ -217,7 +209,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_study_plan_to_sponsor',
-    headerName: 'Draft study plan sent to Sponsor (Date)',
+    headerName: 'Draft study plan sent to Sponsor',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -229,7 +221,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_study_plan_sponsor_approval_comments_received',
-    headerName: 'Study plan - Sponsor approval / comments received (Date)',
+    headerName: 'Study plan - Sponsor approval / comments received',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -241,7 +233,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_study_plan_sponsor_approval_comments_sent_to_sd',
-    headerName: 'Study plan Sponsor approval Comments sent to SD (Date)',
+    headerName: 'Study plan Sponsor approval Comments sent to SD',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -253,7 +245,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_study_plan_to_qa',
-    headerName: 'Corrected draft study plan Sent to QA (Date & Time)',
+    headerName: 'Corrected draft study plan Sent to QA',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -265,7 +257,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_study_plan_to_TFM_by_qa',
-    headerName: 'Corrected draft study plan sent to TFM (Date)',
+    headerName: 'Corrected draft study plan sent to TFM',
     type: 'date',
     sortable: false,
     department: 'QA',
@@ -277,7 +269,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_study_plan_to_sponsor',
-    headerName: 'Corrected draft study plan Sent to Sponsor (Date)',
+    headerName: 'Corrected draft study plan Sent to Sponsor',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -289,7 +281,7 @@ export const columnsDefinition = [
   },
   {
     field: 'approval_for_corrected_draft_study_plan_received',
-    headerName: 'Approval for Corrected draft study plan Received (Date)',
+    headerName: 'Approval for Corrected draft study plan Received',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -301,7 +293,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_study_plan_comments_to_sd',
-    headerName: 'Corrected draft study plan Comments Sent to SD (Date)',
+    headerName: 'Corrected draft study plan Comments Sent to SD',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -313,7 +305,7 @@ export const columnsDefinition = [
   },
   {
     field: 'definitive_study_plan_taken',
-    headerName: 'Definitive study plan taken (Date)',
+    headerName: 'Definitive study plan taken',
     type: 'date',
     sortable: false,
     department: 'EDP',
@@ -325,7 +317,7 @@ export const columnsDefinition = [
   },
   {
     field: 'definitive_study_plan_sent_to_qa',
-    headerName: 'Definitive study plan sent to QA (Date)',
+    headerName: 'Definitive study plan sent to QA',
     type: 'date',
     sortable: false,
     department: 'EDP',
@@ -337,7 +329,7 @@ export const columnsDefinition = [
   },
   {
     field: 'definitive_study_plan_to_TFM_by_qa',
-    headerName: 'Definitive study plan Sent to TFM (Date)',
+    headerName: 'Definitive study plan Sent to TFM',
     type: 'date',
     sortable: false,
     department: 'QA',
@@ -349,7 +341,7 @@ export const columnsDefinition = [
   },
   {
     field: 'definitive_plan_to_sponsor',
-    headerName: 'Definitive study plan sent to Sponsor (Date)',
+    headerName: 'Definitive study plan sent to Sponsor',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -361,7 +353,7 @@ export const columnsDefinition = [
   },
   {
     field: 'definitive_study_plan_sponsor_approval',
-    headerName: 'Definitive study plan sponsor approval received (Date)',
+    headerName: 'Definitive study plan sponsor approval received',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -373,7 +365,7 @@ export const columnsDefinition = [
   },
   {
     field: 'definitive_study_plan_comments_to_sd',
-    headerName: 'Definitive study plan comments sent to SD (Date)',
+    headerName: 'Definitive study plan comments sent to SD',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -385,7 +377,7 @@ export const columnsDefinition = [
   },
   {
     field: 'study_initiation',
-    headerName: 'Study Initiation (Date)',
+    headerName: 'Study Initiation',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -397,7 +389,7 @@ export const columnsDefinition = [
   },
   {
     field: 'experiment_start_date',
-    headerName: 'Exp Start (Date)',
+    headerName: 'Exp Start',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -409,7 +401,7 @@ export const columnsDefinition = [
   },
   {
     field: 'experiment_complete_date',
-    headerName: 'Exp Completed (Date)',
+    headerName: 'Exp Completed',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -421,7 +413,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_report_commited_to_qa',
-    headerName: 'Draft report committed to QA (Date)',
+    headerName: 'Draft report committed to QA',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -433,7 +425,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_report_commited_to_sponsor',
-    headerName: 'Draft report committed to Sponsor (Date)',
+    headerName: 'Draft report committed to Sponsor',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -445,7 +437,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_report_completion',
-    headerName: 'Draft report completion (Date)',
+    headerName: 'Draft report completion',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -457,7 +449,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_report_to_qa',
-    headerName: 'Draft report to QA (Date)',
+    headerName: 'Draft report to QA',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -469,7 +461,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_report_to_TFM_by_qa',
-    headerName: 'Draft report sent to TFM (Date)',
+    headerName: 'Draft report sent to TFM',
     type: 'date',
     sortable: false,
     department: 'QA',
@@ -481,7 +473,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_report_to_sponsor',
-    headerName: 'Draft report sent to Sponsor (Date)',
+    headerName: 'Draft report sent to Sponsor',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -493,7 +485,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_report_sponsor_reply',
-    headerName: 'Draft report Sponsor Approval / Comments received (Date)',
+    headerName: 'Draft report Sponsor Approval / Comments received',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -505,7 +497,7 @@ export const columnsDefinition = [
   },
   {
     field: 'draft_report_comments_to_sd',
-    headerName: 'Draft Report Sponsor Approval Comments sent to SD (Date)',
+    headerName: 'Draft Report Sponsor Approval Comments sent to SD',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -517,7 +509,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_report_to_qa',
-    headerName: 'Corrected draft report sent to QA (Date & Time)',
+    headerName: 'Corrected draft report sent to QA',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -529,7 +521,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_report_to_TFM_by_qa',
-    headerName: 'Corrected draft report sent to TFM (Date)',
+    headerName: 'Corrected draft report sent to TFM',
     type: 'date',
     sortable: false,
     department: 'QA',
@@ -541,7 +533,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_report_to_sponsor',
-    headerName: 'Corrected draft report sent to Sponsor (Date)',
+    headerName: 'Corrected draft report sent to Sponsor',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -553,7 +545,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_report_sponsor_reply',
-    headerName: 'Corrected draft report sponsor approval received (Date)',
+    headerName: 'Corrected draft report sponsor approval received',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -565,7 +557,7 @@ export const columnsDefinition = [
   },
   {
     field: 'corrected_draft_report_comments_to_sd',
-    headerName: 'Corrected draft report comments sent to SD (Date)',
+    headerName: 'Corrected draft report comments sent to SD',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -577,7 +569,7 @@ export const columnsDefinition = [
   },
   {
     field: 'study_completion',
-    headerName: 'Study Completion (Date)',
+    headerName: 'Study Completion',
     type: 'date',
     sortable: false,
     department: 'SD',
@@ -637,7 +629,7 @@ export const columnsDefinition = [
   },
   {
     field: 'final_report_to_sponsor',
-    headerName: 'Final Report to Sponsor (Date)',
+    headerName: 'Final Report to Sponsor',
     type: 'date',
     sortable: false,
     department: 'MAIL COMMUNICATION',
@@ -649,7 +641,7 @@ export const columnsDefinition = [
   },
   {
     field: 'hard_copies_sent',
-    headerName: 'Hard Copies sent (Date)',
+    headerName: 'Hard Copies sent',
     type: 'date',
     sortable: false,
     department: 'EDP',

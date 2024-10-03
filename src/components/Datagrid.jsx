@@ -9,7 +9,7 @@ import { Button } from 'primereact/button'
 import { useLocation } from 'react-router-dom'
 import GLR from '../assets/GLR-1.png'
 import Login10 from '../../login-form-20'
-import CustomHeader from './CustomHeader'
+import { useNavigate } from 'react-router-dom'
 
 const dateFormatter = (params) => {
   if (!params.value) return ''
@@ -33,38 +33,45 @@ const Datagrid = () => {
   const [gridApi, setGridApi] = useState(null)
 
   const toast = useRef(null)
+  const navigate = useNavigate()
 
   const location = useLocation()
   const userInfo = location.state?.user
-  console.log(userInfo?.role)
 
   const transformColumns = (columns) => {
-    return columns
+    const pinnedTopRowData = [{}] // Initialize pinned row data
+
+    const columnDefs = columns
       .filter(
         (col) => userInfo.role === 'accounts' || col.department !== 'accounts'
       ) // Filter out accounts columns if user is not in accounts
-      .map((col) => ({
-        headerName: `${col.department}|${col.headerName || col.name}`, // Pass department and headerName separated by '|'
-        field: col.field,
-        sortable: col.sortable === 'true',
-        pinned: col.freeze === 'true' ? 'left' : null,
-        editable: true,
-        filter: true,
-        cellEditor:
-          col.type === 'date' ? 'agDateCellEditor' : 'agTextCellEditor',
-        valueFormatter: col.type === 'date' ? dateFormatter : null,
-        valueParser: col.type === 'date' ? dateParser : null,
-        cellClass:
-          col.department.toLowerCase() === userInfo.role
-            ? 'editable-cell'
-            : null, // Apply class for editable columns
+      .map((col) => {
+        // Set department for pinned row based on field
+        pinnedTopRowData[0][col.field] = col.department || '' // Add department to pinned row data
 
-        // Use CustomHeader component for the header
-        headerComponent: CustomHeader,
-      }))
+        return {
+          headerName: `${col.headerName || col.name}`, // Pass department and headerName separated by '|'
+          field: col.field,
+          sortable: col.sortable === 'true',
+          pinned: col.freeze === 'true' ? 'left' : null,
+          editable: true,
+          filter:
+            col.type === 'date' ? 'agDateColumnFilter' : 'agTextColumnFilter',
+          cellEditor:
+            col.type === 'date' ? 'agDateCellEditor' : 'agTextCellEditor',
+          valueFormatter: col.type === 'date' ? dateFormatter : null,
+          valueParser: col.type === 'date' ? dateParser : null,
+          cellClass:
+            col.department.toLowerCase() === userInfo.role
+              ? 'editable-cell'
+              : null, // Apply class for editable columns
+        }
+      })
+
+    return { columnDefs, pinnedTopRowData }
   }
 
-  const columnDefs = transformColumns(columnsDefinition)
+  const { columnDefs, pinnedTopRowData } = transformColumns(columnsDefinition)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,10 +82,13 @@ const Datagrid = () => {
             ? { 'Content-Type': 'application/json', role: 'accounts' } // Add the custom 'Role' header
             : { 'Content-Type': 'application/json' } // Default header
 
-        const response = await fetch(`${import.meta.env.VITE_GLR_REPORTING_URL}/study`, {
-          method: 'GET', // Specify the method (default is GET)
-          headers: headers, // Include the headers object
-        })
+        const response = await fetch(
+          `${import.meta.env.VITE_GLR_REPORTING_URL}/study`,
+          {
+            method: 'GET', // Specify the method (default is GET)
+            headers: headers, // Include the headers object
+          }
+        )
 
         const result = await response.json()
 
@@ -109,13 +119,16 @@ const Datagrid = () => {
         })
         return
       }
-      const response = await fetch(`${import.meta.env.VITE_GLR_REPORTING_URL}/${dept}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: raw,
-      })
+      const response = await fetch(
+        `${import.meta.env.VITE_GLR_REPORTING_URL}/${dept}/${id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: raw,
+        }
+      )
 
       if (!response.ok) {
         toast.current.show({
@@ -180,6 +193,24 @@ const Datagrid = () => {
     }
   }
 
+  const handleLogout = () => {
+    navigate('/')
+    toast.current.show({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Successfully Logged out.',
+    })
+  }
+
+  const viewLogs = () => {
+    window.open('/logs', '_blank')
+    toast.current.show({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Navigating to logs view',
+    })
+  }
+
   const addNewRow = () => {
     // Create a new row object with default values based on column definitions
     const newRow = columnDefs.reduce((row, col) => {
@@ -190,19 +221,41 @@ const Datagrid = () => {
     // Add the new row to the beginning of the products array
     setProducts([newRow, ...products])
   }
+
+  const addRowAllowedRoles = import.meta.env.VITE_ADD_ROW_ALLOWED_ROLES.split(
+    ','
+  )
+  const viewLogRoles = import.meta.env.VITE_VIEW_LOG_ALLOWED_ROLES.split(',')
+
   return (
     <>
       <Toast ref={toast} />
+
       <span className="button-container">
         <img src={GLR} alt="Logo" className="logo" />
-        <Button
-          className="center-button"
-          label="Add New Row"
-          type="button"
-          rounded
-          onClick={addNewRow}
-          data-pr-tooltip="Add New Row"
-        />
+
+        {addRowAllowedRoles.includes(userInfo?.role) && (
+          <Button
+            className="center-button"
+            label="Add New Row"
+            type="button"
+            rounded
+            onClick={addNewRow}
+            data-pr-tooltip="Add New Row"
+            style={{ marginRight: '10px' }} // Adjust the value as needed
+          />
+        )}
+        {viewLogRoles.includes(userInfo?.role) && (
+          <Button
+            className="center-button"
+            label="View Logs"
+            type="button"
+            rounded
+            onClick={viewLogs}
+            data-pr-tooltip="Add New Row"
+          />
+        )}
+
         <Button
           className="right-button"
           label="Export as CSV"
@@ -211,7 +264,24 @@ const Datagrid = () => {
           onClick={exportToCSV}
           data-pr-tooltip="Export CSV"
         />
+
+        {/* Display welcome message in a box */}
+        {userInfo && (
+          <div className="welcome-box">
+            Welcome {userInfo.name}. Logged in as {userInfo.role}.
+          </div>
+        )}
+
+        <Button
+          className="right-button"
+          label="Logout"
+          type="button"
+          rounded
+          onClick={handleLogout}
+          data-pr-tooltip="Logout"
+        />
       </span>
+
       <div className="ag-theme-quartz" style={{ height: 1500, width: '100%' }}>
         {userInfo ? (
           <AgGridReact
@@ -223,10 +293,11 @@ const Datagrid = () => {
             suppressMovableColumns={true}
             onCellValueChanged={handleCellValueChanged}
             onGridReady={onGridReady}
+            // pinnedTopRowData={pinnedTopRowData}
             domLayout="autoHeight"
-            rowClassRules={{
-              'fixed-row': (params) => params.rowIndex === 0,
-            }}
+            // rowClassRules={{
+            //   'fixed-row': (params) => params.node.rowPinned, // Apply class for pinned row
+            // }}
           />
         ) : (
           <Login10 />
