@@ -38,6 +38,8 @@ const Datagrid = () => {
   const location = useLocation()
   const userInfo = location.state?.user
 
+  const editAllRoles = import.meta.env.VITE_EDIT_ALL_FIELDS_ROLES.split(',')
+
   const transformColumns = (columns) => {
     const pinnedTopRowData = [{}] // Initialize pinned row data
 
@@ -51,10 +53,15 @@ const Datagrid = () => {
 
         return {
           headerName: `${col.headerName || col.name}`, // Pass department and headerName separated by '|'
-          field: col.field,
+          field:
+            col.department.toLowerCase() === 'study'
+              ? col.field
+              : `${col.department.toLowerCase()}.${col.field}`,
           sortable: col.sortable === 'true',
           pinned: col.freeze === 'true' ? 'left' : null,
-          editable: true,
+          editable:
+            col.department.toLowerCase() === userInfo.role ||
+            editAllRoles.includes(userInfo?.role),
           filter:
             col.type === 'date' ? 'agDateColumnFilter' : 'agTextColumnFilter',
           cellEditor:
@@ -62,7 +69,8 @@ const Datagrid = () => {
           valueFormatter: col.type === 'date' ? dateFormatter : null,
           valueParser: col.type === 'date' ? dateParser : null,
           cellClass:
-            col.department.toLowerCase() === userInfo.role
+            col.department.toLowerCase() === userInfo.role ||
+            editAllRoles.includes(userInfo?.role)
               ? 'editable-cell'
               : null, // Apply class for editable columns
         }
@@ -105,10 +113,6 @@ const Datagrid = () => {
 
   const sendData = async (id, data, department) => {
     const raw = JSON.stringify(data)
-    const dept =
-      department !== 'MAIL COMMUNICATION'
-        ? department.toLowerCase()
-        : 'mailCommunication'
 
     try {
       if (!id) {
@@ -119,6 +123,11 @@ const Datagrid = () => {
         })
         return
       }
+      console
+      const dept =
+        department !== 'MAIL COMMUNICATION'
+          ? department.toLowerCase()
+          : 'mailCommunication'
       const response = await fetch(
         `${import.meta.env.VITE_GLR_REPORTING_URL}/${dept}/${id}`,
         {
@@ -153,12 +162,14 @@ const Datagrid = () => {
 
   const handleCellValueChanged = (event) => {
     const { data, colDef, newValue } = event
-
+    const fieldParts = colDef.field.split('.') // Split at the dot '.'
+    colDef.field = fieldParts.length > 1 ? fieldParts[1] : colDef.field
     const datasent = {
       [colDef.field]: newValue,
       updated_by: userInfo.name,
       update_dttm: new Date(),
     }
+    console.log(datasent)
 
     function getDepartmentByField(field) {
       for (const column of columnsDefinition) {
@@ -290,7 +301,7 @@ const Datagrid = () => {
             pagination={true}
             paginationPageSize={10}
             singleClickEdit={true}
-            suppressMovableColumns={true}
+            suppressMovableColumns={false}
             onCellValueChanged={handleCellValueChanged}
             onGridReady={onGridReady}
             // pinnedTopRowData={pinnedTopRowData}

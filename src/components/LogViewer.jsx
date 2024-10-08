@@ -14,6 +14,7 @@ const LogViewer = () => {
           `${import.meta.env.VITE_GLR_REPORTING_URL}/logs`
         )
         const data = await response.json()
+        console.log(data)
         setLogs(data)
       } catch (error) {
         console.error('Error fetching logs:', error)

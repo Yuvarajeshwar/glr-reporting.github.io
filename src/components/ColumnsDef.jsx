@@ -10,11 +10,11 @@ export const columnsDefinition = [
     cellEditor: 'agTextCellEditor',
   },
   {
-    field: 'sponsor_name',
+    field: 'sponsor',
     headerName: 'Sponsor',
     type: 'text',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'tico',
     freeze: 'true',
   },
   {
@@ -22,7 +22,7 @@ export const columnsDefinition = [
     headerName: 'Study Director',
     type: 'text',
     sortable: 'true',
-    department: 'STUDY',
+    department: 'tico',
     freeze: 'true',
   },
   {
@@ -30,14 +30,14 @@ export const columnsDefinition = [
     headerName: 'Test Name',
     type: 'text',
     sortable: false,
-    department: 'MAIL COMMUNICATION',
+    department: 'tico',
   },
   {
     field: 'study_title',
     headerName: 'Study Title',
     type: 'text',
     sortable: false,
-    department: 'STUDY',
+    department: 'tico',
   },
   {
     field: 'sample_received_dttm',
@@ -196,7 +196,7 @@ export const columnsDefinition = [
     },
   },
   {
-    field: 'draft_study_plan_to_TFM_by_qa',
+    field: 'draft_study_plan_to_tfm_by_qa',
     headerName: 'Draft study plan sent to TFM by QA',
     type: 'date',
     sortable: false,
@@ -256,7 +256,7 @@ export const columnsDefinition = [
     },
   },
   {
-    field: 'corrected_draft_study_plan_to_TFM_by_qa',
+    field: 'corrected_draft_study_plan_to_tfm_by_qa',
     headerName: 'Corrected draft study plan sent to TFM',
     type: 'date',
     sortable: false,
@@ -328,7 +328,7 @@ export const columnsDefinition = [
     },
   },
   {
-    field: 'definitive_study_plan_to_TFM_by_qa',
+    field: 'definitive_study_plan_to_tfm_by_qa',
     headerName: 'Definitive study plan Sent to TFM',
     type: 'date',
     sortable: false,
@@ -460,7 +460,7 @@ export const columnsDefinition = [
     },
   },
   {
-    field: 'draft_report_to_TFM_by_qa',
+    field: 'draft_report_to_tfm_by_qa',
     headerName: 'Draft report sent to TFM',
     type: 'date',
     sortable: false,
@@ -520,7 +520,7 @@ export const columnsDefinition = [
     },
   },
   {
-    field: 'corrected_draft_report_to_TFM_by_qa',
+    field: 'corrected_draft_report_to_tfm_by_qa',
     headerName: 'Corrected draft report sent to TFM',
     type: 'date',
     sortable: false,
@@ -604,7 +604,7 @@ export const columnsDefinition = [
     },
   },
   {
-    field: 'final_report_to_TFM',
+    field: 'final_report_to_tfm',
     headerName: 'Final report to TFM',
     type: 'date',
     sortable: false,
