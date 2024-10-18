@@ -57,8 +57,8 @@ const Login10 = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const loginUrl = 'https://glr-staged.infantsurya.in/v1/user/login';
-    const userInfoUrl = 'https://glr-staged.infantsurya.in/v1/user/precheck';
+    const loginUrl = `${import.meta.env.VITE_GLR_CRM_URL}/user/login`;
+    const userInfoUrl = `${import.meta.env.VITE_GLR_CRM_URL}/user/precheck`;
     const credentials = {
       email: email,
       password: password,

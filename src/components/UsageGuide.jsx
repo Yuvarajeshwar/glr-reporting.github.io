@@ -37,7 +37,7 @@ In the grid, cells that are editable for a user's role are highlighted with a sp
 - In this example, an SD user has logged in. So fields that are assigned to SD user will be highlighted with blue color and only those fields will be editable. All other fields will not allow edit.
 - Once the data is edited, it saves it to database. Update successful notification will be displayed as in the video if data is saved.
 
-![data](src/assets/data_addition_1.gif)
+![data](/assets/data_addition_1.gif)
 ---
 
 ## Additional Features
@@ -49,13 +49,13 @@ In the grid, cells that are editable for a user's role are highlighted with a sp
 - Sorting the data is possible by clicking on column headers. Multiple columns can be sorted by holding the **Shift** key and clicking on additional columns.
 - Here is a GIF demonstrating the feature:
 
-![Sorting](src/assets/sorting.gif)
+![Sorting](/assets/sorting.gif)
 
 ### 3. **Filtering**:
 - Users can apply filters to columns, such as text or date filters, by clicking on the filter icon in each column header.
 - Here is a GIF demonstrating the feature:
 
-![Filtering](src/assets/filtering.gif)
+![Filtering](/assets/filtering.gif)
 `
 
 const UserGuide = () => {
