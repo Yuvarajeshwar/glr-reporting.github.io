@@ -73,6 +73,7 @@ const Datagrid = () => {
             editAllRoles.includes(userInfo?.role)
               ? 'editable-cell'
               : null, // Apply class for editable columns
+          headerTooltip: col.department.toUpperCase() || '', // Add department as tooltip
         }
       })
 
@@ -169,8 +170,8 @@ const Datagrid = () => {
       updated_by: userInfo.name,
       update_dttm: new Date(),
     }
-    console.log(datasent)
 
+    
     function getDepartmentByField(field) {
       for (const column of columnsDefinition) {
         if (column && column.field === field) {
@@ -229,6 +230,7 @@ const Datagrid = () => {
       return row
     }, {})
 
+    
     // Add the new row to the beginning of the products array
     setProducts([newRow, ...products])
   }
