@@ -42,39 +42,26 @@ export const columnsDefinition = [
   {
     field: 'sample_received_dttm',
     headerName: 'Sample received on',
-    type: 'date',
+    type: 'text',
     sortable: false,
     department: 'TICO',
     editable: true,
-    cellEditor: 'agDateCellEditor',
-    cellEditorParams: {
-      // Optional date picker parameters
-      format: 'dd-mmm-yyyy', // Specify your desired date format
-    },
   },
   {
     field: 'tids_received_dttm',
     headerName: 'TIDS received on',
-    type: 'date',
+    type: 'text',
     sortable: false,
     department: 'TICO',
     editable: true,
-    cellEditor: 'agDateCellEditor',
-    cellEditorParams: {
-      format: 'dd mmm yyyy',
-    },
   },
   {
     field: 'scope_approval_dttm',
     headerName: 'Scope approved on',
-    type: 'date',
+    type: 'text',
     sortable: false,
     department: 'TICO',
     editable: true,
-    cellEditor: 'agDateCellEditor',
-    cellEditorParams: {
-      format: 'dd mmm yyyy',
-    },
   },
   {
     field: 'tids_issued_to_tfm',

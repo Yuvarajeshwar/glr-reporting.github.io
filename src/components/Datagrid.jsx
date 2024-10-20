@@ -171,7 +171,6 @@ const Datagrid = () => {
       update_dttm: new Date(),
     }
 
-    
     function getDepartmentByField(field) {
       for (const column of columnsDefinition) {
         if (column && column.field === field) {
@@ -230,7 +229,6 @@ const Datagrid = () => {
       return row
     }, {})
 
-    
     // Add the new row to the beginning of the products array
     setProducts([newRow, ...products])
   }
@@ -281,7 +279,7 @@ const Datagrid = () => {
         {/* Display welcome message in a box */}
         {userInfo && (
           <div className="welcome-box">
-            Welcome {userInfo.name}. Logged in as {userInfo.role}.
+            Welcome {userInfo.name}. Logged in as {userInfo.role.toUpperCase()}.
           </div>
         )}
 
@@ -303,7 +301,7 @@ const Datagrid = () => {
             pagination={true}
             paginationPageSize={10}
             singleClickEdit={true}
-            suppressMovableColumns={false}
+            suppressMovableColumns={true}
             onCellValueChanged={handleCellValueChanged}
             onGridReady={onGridReady}
             // pinnedTopRowData={pinnedTopRowData}

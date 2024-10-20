@@ -86,6 +86,12 @@ const Login10 = () => {
     navigate('/guide');
   };
 
+  const resetPassword = () => {
+    navigate('/reset-password');
+  };
+  
+
+
   return (
     <html lang="en">
       <head>
@@ -99,7 +105,7 @@ const Login10 = () => {
       <body className="img js-fullheight" style={{ backgroundImage: `url(${backgroundImage})` }}>
         <Toast ref={toast} />
         <div className="text-right">
-              <button className="btn btn-secondary" onClick={goToUsageDocumentation}>
+              <button className="btn btn-primary submit px-1" onClick={goToUsageDocumentation}>
                 Read Usage Documentation
               </button>
             </div>
@@ -145,6 +151,7 @@ const Login10 = () => {
                         Sign In
                       </button>
                     </div>
+                    <button type="submit" className="form-control btn btn-primary submit px-1" onClick={resetPassword}> Reset Password</button>
                   </form>
                 </div>
               </div>
