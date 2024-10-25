@@ -45,7 +45,7 @@ const Datagrid = () => {
 
     const columnDefs = columns
       .filter(
-        (col) => userInfo.role === 'accounts' || col.department !== 'accounts'
+        (col) => userInfo?.role === 'accounts' || col.department !== 'accounts'
       ) // Filter out accounts columns if user is not in accounts
       .map((col) => {
         // Set department for pinned row based on field
@@ -60,7 +60,7 @@ const Datagrid = () => {
           sortable: col.sortable === 'true',
           pinned: col.freeze === 'true' ? 'left' : null,
           editable:
-            col.department.toLowerCase() === userInfo.role ||
+            col.department.toLowerCase() === userInfo?.role ||
             editAllRoles.includes(userInfo?.role),
           filter:
             col.type === 'date' ? 'agDateColumnFilter' : 'agTextColumnFilter',
@@ -69,7 +69,7 @@ const Datagrid = () => {
           valueFormatter: col.type === 'date' ? dateFormatter : null,
           valueParser: col.type === 'date' ? dateParser : null,
           cellClass:
-            col.department.toLowerCase() === userInfo.role ||
+            col.department.toLowerCase() === userInfo?.role ||
             editAllRoles.includes(userInfo?.role)
               ? 'editable-cell'
               : null, // Apply class for editable columns
@@ -87,7 +87,7 @@ const Datagrid = () => {
       try {
         // Check if the user role is 'accounts'
         const headers =
-          userInfo.role === 'accounts'
+          userInfo?.role === 'accounts'
             ? { 'Content-Type': 'application/json', role: 'accounts' } // Add the custom 'Role' header
             : { 'Content-Type': 'application/json' } // Default header
 
@@ -181,7 +181,7 @@ const Datagrid = () => {
     }
 
     const department = getDepartmentByField(colDef.field)
-    if (userInfo.role) {
+    if (userInfo?.role) {
       sendData(data.study_number, datasent, department)
         .then((response) => {
           console.log(response)
@@ -293,7 +293,14 @@ const Datagrid = () => {
         />
       </span>
 
-      <div className="ag-theme-quartz" style={{ height: 1500, width: '100%' }}>
+      <div
+        className="ag-theme-quartz"
+        style={{
+          height: 'calc(100vh - 100px)',
+          width: '100%',
+          overflow: 'hidden',
+        }}
+      >
         {userInfo ? (
           <AgGridReact
             columnDefs={columnDefs}
@@ -305,7 +312,9 @@ const Datagrid = () => {
             onCellValueChanged={handleCellValueChanged}
             onGridReady={onGridReady}
             // pinnedTopRowData={pinnedTopRowData}
-            domLayout="autoHeight"
+            domLayout="normal"
+            autoWidth={true}
+            // headerHeight={50} // Optional: adjust header height if needed
             // rowClassRules={{
             //   'fixed-row': (params) => params.node.rowPinned, // Apply class for pinned row
             // }}

@@ -1,11 +1,73 @@
+/* Ensures that both headers and row data scroll together horizontally */
+
+/* Base styling for scrollable grid container */
+.ag-theme-quartz {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Ensures the header container and body viewport scroll together horizontally */
+.ag-theme-quartz .ag-header-container,
+.ag-theme-quartz .ag-body-viewport-wrapper,
+.ag-theme-quartz .ag-body-viewport {
+  overflow-x: auto; /* Horizontal scroll for header and data */
+  white-space: nowrap; /* Prevent wrapping of content */
+  width: 100%;
+}
+
+/* Styling for the header cells to remain sticky and visible */
+.ag-theme-quartz .ag-header-container,
+.ag-theme-quartz .ag-header-cell {
+  position: sticky;
+  top: 0;
+  z-index: 10; /* Ensure headers are above data rows */
+  background-color: #fff; /* Background color for better visibility */
+  border-bottom: 1px solid #ccc; /* Optional: Distinguish header row */
+}
+
+/* Body horizontal scroll styling */
+.ag-body-horizontal-scroll {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background-color: #fff; /* Optional: Background for better visibility */
+  border-top: 1px solid #ccc; /* Optional: Border for visual separation */
+}
+
+/* Wrapper to ensure alignment of header and viewport for horizontal scrolling */
+.ag-theme-quartz .ag-header,
+.ag-theme-quartz .ag-body-viewport-wrapper {
+  display: flex;
+  overflow-x: auto;
+}
+
+.ag-theme-quartz .ag-body-viewport {
+  display: flex;
+  width: 100%;
+  white-space: nowrap;
+}
+
+/* Disable vertical scrolling on the browser window */
+body,
+html {
+  overflow-y: hidden;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Adjusts z-index for any frozen or sticky elements */
 .p-datatable-frozen-view {
-  z-index: 2; /* Ensure this is higher than non-frozen content */
+  z-index: 2;
 }
 .p-datatable-scrollable-view {
   z-index: 1;
 }
 
-.search-container {
+search-container {
   display: flex;
   align-items: center;
   border: 1px solid #ccc;
