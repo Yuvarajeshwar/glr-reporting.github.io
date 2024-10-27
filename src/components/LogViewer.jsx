@@ -76,14 +76,19 @@ const LogViewer = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredLogs.map((log, index) => (
-            <tr key={index}>
-              <td>{new Date(log.timestamp).toLocaleString()}</td>
-              <td>{log.level}</td>
-              <td>{log.message}</td>
-            </tr>
-          ))}
-        </tbody>
+  {filteredLogs.map((log, index) => (
+    <tr key={index}>
+      <td>{new Date(log.timestamp).toLocaleString()}</td>
+      <td>{log.level}</td>
+      <td>
+        {typeof log.message === 'object'
+          ? JSON.stringify(log.message) // Convert objects to JSON strings
+          : log.message}
+      </td>
+    </tr>
+  ))}
+</tbody>
+
       </table>
     </div>
   )

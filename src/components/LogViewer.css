@@ -1,69 +1,108 @@
+/* Main container for log viewer */
 .log-viewer {
-  background-color: #f5f5f5; /* Light gray background */
+  background-color: #1e2a38; /* Navy blue background */
+  color: #e0e6ed; /* Light text color for better contrast */
+  font-family: Arial, sans-serif;
   padding: 20px;
   border-radius: 8px;
-  max-width: 800px;
-  margin: 0 auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+  margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-h2 {
+/* Heading style */
+.log-viewer h2 {
+  color: #f4f7fa;
+  font-size: 24px;
+  margin-bottom: 20px;
   text-align: center;
-  color: #333; /* Dark text color */
 }
 
+/* Filter input styling */
 .filter-input {
   width: 100%;
   padding: 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
   margin-bottom: 20px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  border: 1px solid #3b4a5a;
+  background-color: #2b3a47;
+  color: #f4f7fa;
 }
 
+/* Date filters container */
 .date-filters {
   display: flex;
   justify-content: space-between;
+  gap: 15px;
   margin-bottom: 20px;
 }
 
-.date-filter-group {
-  flex: 1;
-  margin-right: 10px;
+/* Date filter group styling */
+.date-filter-group label {
+  color: #a9b6c1;
+  font-size: 14px;
 }
 
-.date-filter-group:last-child {
-  margin-right: 0; /* Remove margin for last child */
+.date-filter-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #3b4a5a;
+  background-color: #2b3a47;
+  color: #f4f7fa;
+  margin-top: 5px;
 }
 
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555; /* Gray text for labels */
-}
-
+/* Log table styling */
 .log-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.log-table thead {
+  background-color: #273445;
 }
 
 .log-table th,
 .log-table td {
   padding: 12px;
   text-align: left;
-  border: 1px solid #ddd; /* Light border */
+  border-bottom: 1px solid #3b4a5a;
 }
 
 .log-table th {
-  background-color: #007bff; /* Bootstrap primary color */
-  color: white;
-}
-
-.log-table tbody tr:nth-child(even) {
-  background-color: #f2f2f2; /* Alternate row color */
+  color: #dce1e8;
+  font-weight: bold;
 }
 
 .log-table tbody tr:hover {
-  background-color: #e9e9e9; /* Hover color */
+  background-color: #2e3a48;
+}
+
+.log-table tbody tr:nth-child(even) {
+  background-color: #253344;
+}
+
+.log-table td {
+  color: #f4f7fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .date-filters {
+    flex-direction: column;
+  }
+  
+  .log-viewer {
+    padding: 15px;
+  }
+}
+
+body,
+html {
+  overflow-y: auto;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
