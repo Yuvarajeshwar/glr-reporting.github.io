@@ -62,10 +62,8 @@ const Datagrid = () => {
           editable:
             col.department.toLowerCase() === userInfo?.role ||
             editAllRoles.includes(userInfo?.role),
-          filter:
-            col.type === 'date' ? 'agDateColumnFilter' : 'agTextColumnFilter',
-          cellEditor:
-            col.type === 'date' ? 'agDateCellEditor' : 'agTextCellEditor',
+          filter: 'agTextColumnFilter',
+          cellEditor: 'agTextCellEditor',
           valueFormatter: col.type === 'date' ? dateFormatter : null,
           valueParser: col.type === 'date' ? dateParser : null,
           cellClass:
@@ -163,12 +161,26 @@ const Datagrid = () => {
 
   const handleCellValueChanged = (event) => {
     const { data, colDef, newValue } = event
+    data[colDef.field] = newValue
     const fieldParts = colDef.field.split('.') // Split at the dot '.'
     colDef.field = fieldParts.length > 1 ? fieldParts[1] : colDef.field
+
+    function getTypeByField(field) {
+      for (const column of columnsDefinition) {
+        console.log(column)
+        if (column && column.field === field) {
+          return column.type
+        }
+      }
+      return 'Field not found'
+    }
+
+    const type = getTypeByField(colDef.field)
     const datasent = {
       [colDef.field]: newValue,
-      updated_by: userInfo.name,
+      updated_by: userInfo?.name,
       update_dttm: new Date(),
+      field_type: type,
     }
 
     function getDepartmentByField(field) {
@@ -181,8 +193,9 @@ const Datagrid = () => {
     }
 
     const department = getDepartmentByField(colDef.field)
+
     if (userInfo?.role) {
-      sendData(data.study_number, datasent, department)
+      sendData(data.study_number, datasent, department, type)
         .then((response) => {
           console.log(response)
         })
@@ -306,7 +319,7 @@ const Datagrid = () => {
             columnDefs={columnDefs}
             rowData={products}
             pagination={true}
-            paginationPageSize={10}
+            paginationPageSize={50}
             singleClickEdit={true}
             suppressMovableColumns={true}
             onCellValueChanged={handleCellValueChanged}
