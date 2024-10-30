@@ -52,7 +52,10 @@ const Datagrid = () => {
         pinnedTopRowData[0][col.field] = col.department || '' // Add department to pinned row data
 
         return {
-          headerName: `${col.headerName || col.name}`, // Pass department and headerName separated by '|'
+          headerName:
+            col.field !== 'archival_date'
+              ? `${col.headerName} (${col.department.toUpperCase()})`
+              : `${col.headerName})`, // Pass department and headerName separated by '|'
           field:
             col.department.toLowerCase() === 'study'
               ? col.field
@@ -60,8 +63,9 @@ const Datagrid = () => {
           sortable: col.sortable === 'true',
           pinned: col.freeze === 'true' ? 'left' : null,
           editable:
+            (col.field === 'archival_date' && userInfo?.role === 'archivist') ||
             col.department.toLowerCase() === userInfo?.role ||
-            editAllRoles.includes(userInfo?.role),
+            !editAllRoles.includes(userInfo?.role),
           filter: 'agTextColumnFilter',
           cellEditor: 'agTextCellEditor',
           valueFormatter: col.type === 'date' ? dateFormatter : null,
@@ -194,7 +198,7 @@ const Datagrid = () => {
 
     const department = getDepartmentByField(colDef.field)
 
-    if (userInfo?.role) {
+    if (userInfo.role) {
       sendData(data.study_number, datasent, department, type)
         .then((response) => {
           console.log(response)
@@ -202,6 +206,12 @@ const Datagrid = () => {
         .catch((error) => {
           console.error('Error sending data:', error)
         })
+    } else {
+      toast.current.show({
+        severity: 'info',
+        summary: 'Info',
+        detail: 'Please login to make changes to the application',
+      })
     }
   }
 

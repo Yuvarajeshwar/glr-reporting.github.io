@@ -4,11 +4,12 @@ import './css/style.css';
 import backgroundImage from '../src/assets/background.webp';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Login10 = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate();
   const toast = useRef(null);
 
@@ -56,7 +57,7 @@ const Login10 = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    setIsLoading(true)
     const loginUrl = `${import.meta.env.VITE_GLR_CRM_URL}/user/login`;
     const userInfoUrl = `${import.meta.env.VITE_GLR_CRM_URL}/user/precheck`;
     const credentials = {
@@ -66,10 +67,12 @@ const Login10 = () => {
 
     loginUserAndGetInfo(loginUrl, userInfoUrl, credentials).then((userInfo) => {
       if (userInfo) {
+        setIsLoading(false)
         toast.current.show({ severity: 'success', summary: 'Info', detail: 'Login successful.' });
         navigate('/glrTracker', { state: userInfo });
       } else {
-        toast.current.show({ severity: 'error', summary: 'Info', detail: 'Login Failed. Please try again later.' });
+        setIsLoading(false)
+        toast.current.show({ severity: 'error', summary: 'Info', detail: 'Login Failed. Please try again later.' }); 
       }
     });
   };
@@ -104,6 +107,11 @@ const Login10 = () => {
       </head>
       <body className="img js-fullheight" style={{ backgroundImage: `url(${backgroundImage})` }}>
         <Toast ref={toast} />
+        {isLoading && (
+      <div className="fullscreen-loader">
+        <ProgressSpinner />
+      </div>
+    )}
         <div className="text-right">
               <button className="btn btn-primary submit px-1" onClick={goToUsageDocumentation}>
                 Read Usage Documentation

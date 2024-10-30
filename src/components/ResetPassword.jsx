@@ -3,11 +3,14 @@ import { useState, useRef } from 'react'
 import backgroundImage from '../assets/background.webp'
 import { useNavigate } from 'react-router-dom'
 import { Toast } from 'primereact/toast'
+import { ProgressSpinner } from 'primereact/progressspinner'
+import './ResetPassword.css'
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [tempPassword, setTempPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
   const toast = useRef(null)
@@ -43,7 +46,7 @@ const ResetPassword = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-
+    setIsLoading(true)
     const loginUrl = `${import.meta.env.VITE_GLR_CRM_URL}/user/reset-password`
     const credentials = {
       email: email,
@@ -58,6 +61,7 @@ const ResetPassword = () => {
           summary: 'Info',
           detail: 'Login successful.',
         })
+        setIsLoading(false)
         navigate('/')
       } else {
         toast.current.show({
@@ -65,6 +69,7 @@ const ResetPassword = () => {
           summary: 'Info',
           detail: 'Reset password failed. Please try again later.',
         })
+        setIsLoading(false)
       }
     })
   }
@@ -108,7 +113,6 @@ const ResetPassword = () => {
         className="img js-fullheight"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       >
-        <Toast ref={toast} />
         <div className="text-right">
           <button
             className="btn btn-primary submit px-1"
@@ -128,7 +132,12 @@ const ResetPassword = () => {
                 <h6>{import.meta.env.VITE_APP_VERSION}</h6>
               </div>
             </div>
-
+            <Toast ref={toast} />
+            {isLoading && (
+              <div className="fullscreen-loader">
+                <ProgressSpinner />
+              </div>
+            )}
             <div className="row justify-content-center">
               <div className="col-md-6 col-lg-4">
                 <div className="login-wrap p-0">
