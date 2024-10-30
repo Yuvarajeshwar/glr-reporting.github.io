@@ -201,7 +201,7 @@ const Datagrid = () => {
 
     const department = getDepartmentByField(colDef.field)
 
-    if (!userInfo?.role) {
+    if (userInfo?.role) {
       sendData(data.study_number, datasent, department, type)
         .then((response) => {
           console.log(response)
@@ -327,7 +327,7 @@ const Datagrid = () => {
           overflow: 'hidden',
         }}
       >
-        {!userInfo ? (
+        {userInfo ? (
           <AgGridReact
             columnDefs={columnDefs}
             rowData={products}
