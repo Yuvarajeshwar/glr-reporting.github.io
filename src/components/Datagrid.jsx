@@ -50,6 +50,12 @@ const Datagrid = () => {
       .map((col) => {
         // Set department for pinned row based on field
         pinnedTopRowData[0][col.field] = col.department || '' // Add department to pinned row data
+        const isEditable =
+          (col.field === 'archival_date' && userInfo?.role === 'archivist') ||
+          col.department.toLowerCase() === userInfo?.role ||
+          (userInfo?.role === 'pm' &&
+            col.department === 'MAIL COMMUNICATION') || // Allow 'pm' role to edit all fields in mail communication
+          editAllRoles.includes(userInfo?.role)
 
         return {
           headerName:
@@ -62,10 +68,7 @@ const Datagrid = () => {
               : `${col.department.toLowerCase()}.${col.field}`,
           sortable: col.sortable === 'true',
           pinned: col.freeze === 'true' ? 'left' : null,
-          editable:
-            (col.field === 'archival_date' && userInfo?.role === 'archivist') ||
-            col.department.toLowerCase() === userInfo?.role ||
-            !editAllRoles.includes(userInfo?.role),
+          editable: isEditable,
           filter: 'agTextColumnFilter',
           cellEditor: 'agTextCellEditor',
           valueFormatter: col.type === 'date' ? dateFormatter : null,
@@ -76,6 +79,7 @@ const Datagrid = () => {
               ? 'editable-cell'
               : null, // Apply class for editable columns
           headerTooltip: col.department.toUpperCase() || '', // Add department as tooltip
+          width: 200, // Allow the column to grow
         }
       })
 
@@ -126,7 +130,6 @@ const Datagrid = () => {
         })
         return
       }
-      console
       const dept =
         department !== 'MAIL COMMUNICATION'
           ? department.toLowerCase()
@@ -198,7 +201,7 @@ const Datagrid = () => {
 
     const department = getDepartmentByField(colDef.field)
 
-    if (userInfo.role) {
+    if (!userInfo?.role) {
       sendData(data.study_number, datasent, department, type)
         .then((response) => {
           console.log(response)
@@ -324,7 +327,7 @@ const Datagrid = () => {
           overflow: 'hidden',
         }}
       >
-        {userInfo ? (
+        {!userInfo ? (
           <AgGridReact
             columnDefs={columnDefs}
             rowData={products}
@@ -337,6 +340,7 @@ const Datagrid = () => {
             // pinnedTopRowData={pinnedTopRowData}
             domLayout="normal"
             autoWidth={true}
+            headerHeight={120}
             // headerHeight={50} // Optional: adjust header height if needed
             // rowClassRules={{
             //   'fixed-row': (params) => params.node.rowPinned, // Apply class for pinned row
