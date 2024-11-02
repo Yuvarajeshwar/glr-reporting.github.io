@@ -68,7 +68,7 @@ export const columnsDefinition = [
     headerName: 'TIDS issued to TFM Office',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
 
     cellEditorParams: {
@@ -109,7 +109,7 @@ export const columnsDefinition = [
     headerName: 'Direct Reports',
     type: 'text',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
   },
   {
     field: 'sd_allotment_tfm_to_qa',
@@ -171,7 +171,7 @@ export const columnsDefinition = [
     headerName: 'Draft study plan sent to Sponsor',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -179,7 +179,7 @@ export const columnsDefinition = [
     headerName: 'Study plan - Sponsor approval / comments received',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -187,7 +187,7 @@ export const columnsDefinition = [
     headerName: 'Study plan Sponsor approval Comments sent to SD',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -211,7 +211,7 @@ export const columnsDefinition = [
     headerName: 'Corrected draft study plan Sent to Sponsor',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -219,7 +219,7 @@ export const columnsDefinition = [
     headerName: 'Approval for Corrected draft study plan Received',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -227,7 +227,7 @@ export const columnsDefinition = [
     headerName: 'Corrected draft study plan Comments Sent to SD',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -259,7 +259,7 @@ export const columnsDefinition = [
     headerName: 'Definitive study plan sent to Sponsor',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -267,7 +267,7 @@ export const columnsDefinition = [
     headerName: 'Definitive study plan sponsor approval received',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -275,7 +275,7 @@ export const columnsDefinition = [
     headerName: 'Definitive study plan comments sent to SD',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -347,7 +347,7 @@ export const columnsDefinition = [
     headerName: 'Draft report sent to Sponsor',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -355,7 +355,7 @@ export const columnsDefinition = [
     headerName: 'Draft report Sponsor Approval / Comments received',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -363,7 +363,7 @@ export const columnsDefinition = [
     headerName: 'Draft Report Sponsor Approval Comments sent to SD',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -387,7 +387,7 @@ export const columnsDefinition = [
     headerName: 'Corrected draft report sent to Sponsor',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -395,7 +395,7 @@ export const columnsDefinition = [
     headerName: 'Corrected draft report sponsor approval received',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -403,7 +403,7 @@ export const columnsDefinition = [
     headerName: 'Corrected draft report comments sent to SD',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -459,7 +459,7 @@ export const columnsDefinition = [
     headerName: 'Final Report to Sponsor',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {
@@ -499,7 +499,7 @@ export const columnsDefinition = [
     headerName: 'Amended Final Report to Sponsor',
     type: 'dateString',
     sortable: 'true',
-    department: 'MAIL COMMUNICATION',
+    department: 'PM',
     editable: true,
   },
   {

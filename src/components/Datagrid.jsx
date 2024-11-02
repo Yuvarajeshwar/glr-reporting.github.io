@@ -53,9 +53,8 @@ const Datagrid = () => {
         const isEditable =
           (col.field === 'archival_date' && userInfo?.role === 'archivist') ||
           col.department.toLowerCase() === userInfo?.role ||
-          (userInfo?.role === 'pm' &&
-            col.department === 'MAIL COMMUNICATION') || // Allow 'pm' role to edit all fields in mail communication
-          editAllRoles.includes(userInfo?.role)
+          userInfo?.role === 'pm' || // Allow 'pm' role to edit all fields in mail communication
+          !editAllRoles.includes(userInfo?.role)
 
         return {
           headerName:
@@ -131,9 +130,7 @@ const Datagrid = () => {
         return
       }
       const dept =
-        department !== 'MAIL COMMUNICATION'
-          ? department.toLowerCase()
-          : 'mailCommunication'
+        department !== 'PM' ? department.toLowerCase() : 'mailCommunication'
       const response = await fetch(
         `${import.meta.env.VITE_GLR_REPORTING_URL}/${dept}/${id}`,
         {
@@ -263,6 +260,8 @@ const Datagrid = () => {
     ','
   )
   const viewLogRoles = import.meta.env.VITE_VIEW_LOG_ALLOWED_ROLES.split(',')
+  const viewExportCsvOption =
+    import.meta.env?.VITE_VIEW_EXPORT_CSV_ROLES.split(',') ?? null
 
   return (
     <>
@@ -292,15 +291,16 @@ const Datagrid = () => {
             data-pr-tooltip="Add New Row"
           />
         )}
-
-        <Button
-          className="right-button"
-          label="Export as CSV"
-          type="button"
-          rounded
-          onClick={exportToCSV}
-          data-pr-tooltip="Export CSV"
-        />
+        {viewExportCsvOption.includes(userInfo?.role) && (
+          <Button
+            className="right-button"
+            label="Export as CSV"
+            type="button"
+            rounded
+            onClick={exportToCSV}
+            data-pr-tooltip="Export CSV"
+          />
+        )}
 
         {/* Display welcome message in a box */}
         {userInfo && (
