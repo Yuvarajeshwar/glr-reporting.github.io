@@ -42,6 +42,26 @@ const Datagrid = () => {
 
   const transformColumns = (columns) => {
     const pinnedTopRowData = [{}] // Initialize pinned row data
+    // Define a function that returns the field based on conditions
+    function getField(col) {
+      if (!col || !col.department || !col.field) {
+        // Handle invalid input if necessary
+        return null
+      }
+
+      const department = col.department.toLowerCase()
+
+      if (department === 'study') {
+        return col.field
+      }
+
+      if (department === 'pm') {
+        return `mailCommunication.${col.field}`
+      }
+
+      // Default case for other departments
+      return `${department}.${col.field}`
+    }
 
     const columnDefs = columns
       .filter(
@@ -53,18 +73,14 @@ const Datagrid = () => {
         const isEditable =
           (col.field === 'archival_date' && userInfo?.role === 'archivist') ||
           col.department.toLowerCase() === userInfo?.role ||
-          userInfo?.role === 'pm' || // Allow 'pm' role to edit all fields in mail communication
-          !editAllRoles.includes(userInfo?.role)
+          editAllRoles.includes(userInfo?.role)
 
         return {
           headerName:
             col.field !== 'archival_date'
               ? `${col.headerName} (${col.department.toUpperCase()})`
               : `${col.headerName})`, // Pass department and headerName separated by '|'
-          field:
-            col.department.toLowerCase() === 'study'
-              ? col.field
-              : `${col.department.toLowerCase()}.${col.field}`,
+          field: getField(col), // Call the method to get the field value
           sortable: col.sortable === 'true',
           pinned: col.freeze === 'true' ? 'left' : null,
           editable: isEditable,
@@ -119,18 +135,19 @@ const Datagrid = () => {
 
   const sendData = async (id, data, department) => {
     const raw = JSON.stringify(data)
+    if (!id) {
+      toast.current.show({
+        severity: 'error',
+        summary: 'Info',
+        detail: 'Study number is missing for the requested update.',
+      })
+      return
+    }
+
+    const dept =
+      department !== 'PM' ? department.toLowerCase() : 'mailCommunication'
 
     try {
-      if (!id) {
-        toast.current.show({
-          severity: 'error',
-          summary: 'Info',
-          detail: 'Study number is missing for the requested update.',
-        })
-        return
-      }
-      const dept =
-        department !== 'PM' ? department.toLowerCase() : 'mailCommunication'
       const response = await fetch(
         `${import.meta.env.VITE_GLR_REPORTING_URL}/${dept}/${id}`,
         {
@@ -142,24 +159,31 @@ const Datagrid = () => {
         }
       )
 
-      if (!response.ok) {
+      const result = await response.json()
+
+      if (result.success) {
+        toast.current.show({
+          severity: 'success',
+          summary: 'Info',
+          detail: result.message,
+        })
+        return result
+      } else {
         toast.current.show({
           severity: 'error',
-          summary: 'Info',
-          detail: 'Update Failed. Please try again.',
+          summary: 'Error',
+          detail: result.message || 'Update failed, please try again.',
         })
-        throw new Error('Network response was not ok')
+        return null
       }
-
-      const result = await response.json()
-      toast.current.show({
-        severity: 'success',
-        summary: 'Info',
-        detail: 'Update Successful',
-      })
-      return result
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Network error:', error)
+      toast.current.show({
+        severity: 'error',
+        summary: 'Network Error',
+        detail: 'Failed to connect to the server. Please try again later.',
+      })
+      return null
     }
   }
 

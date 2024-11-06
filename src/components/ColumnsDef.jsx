@@ -102,7 +102,7 @@ export const columnsDefinition = [
     headerName: 'Scope',
     type: 'text',
     sortable: 'true',
-    department: 'SD',
+    department: 'TICO',
   },
   {
     field: 'direct_reports',
@@ -124,7 +124,7 @@ export const columnsDefinition = [
     headerName: 'QA Reviewer alloted by QA',
     type: 'dateString',
     sortable: 'true',
-    department: 'EDP',
+    department: 'QA',
     editable: true,
   },
   {
