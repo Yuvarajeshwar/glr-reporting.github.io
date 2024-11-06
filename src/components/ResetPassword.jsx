@@ -94,7 +94,7 @@ const ResetPassword = () => {
   return (
     <html lang="en">
       <head>
-        <title>GLR REPORTING</title>
+        <title>GLR TRACKER</title>
         <meta charSet="utf-8" />
         <meta
           name="viewport"

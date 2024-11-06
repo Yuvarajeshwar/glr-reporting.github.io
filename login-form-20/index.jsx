@@ -122,7 +122,7 @@ const Login10 = () => {
           <div className="container">
             <div className="row justify-content-center">
               <div className="col-md-6 text-center mb-5">
-                <h2 className="heading-section">GLR REPORTING</h2>
+                <h2 className="heading-section">GLR TRACKER</h2>
                 <h6>{import.meta.env.VITE_APP_VERSION}</h6>
               </div>
             </div>
