@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import './css/style.css';
 import backgroundImage from '../src/assets/background.webp';
 import { useNavigate } from 'react-router-dom';
@@ -9,13 +8,13 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 const Login10 = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false); // New state for password visibility
   const navigate = useNavigate();
   const toast = useRef(null);
 
   async function loginUserAndGetInfo(loginUrl, userInfoUrl, credentials) {
     try {
-      // Step 1: Login to get the token
       const loginResponse = await fetch(loginUrl, {
         method: 'POST',
         headers: {
@@ -28,11 +27,9 @@ const Login10 = () => {
         throw new Error('Login failed');
       }
 
-      // Get the token from the login response
       const loginData = await loginResponse.json();
       const token = loginData.token;
 
-      // Step 2: Use the token to get user info
       const userInfoResponse = await fetch(userInfoUrl, {
         method: 'POST',
         headers: {
@@ -57,7 +54,7 @@ const Login10 = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true)
+    setIsLoading(true);
     const loginUrl = `${import.meta.env.VITE_GLR_CRM_URL}/user/login`;
     const userInfoUrl = `${import.meta.env.VITE_GLR_CRM_URL}/user/precheck`;
     const credentials = {
@@ -67,12 +64,12 @@ const Login10 = () => {
 
     loginUserAndGetInfo(loginUrl, userInfoUrl, credentials).then((userInfo) => {
       if (userInfo) {
-        setIsLoading(false)
+        setIsLoading(false);
         toast.current.show({ severity: 'success', summary: 'Info', detail: 'Login successful.' });
         navigate('/glrTracker', { state: userInfo });
       } else {
-        setIsLoading(false)
-        toast.current.show({ severity: 'error', summary: 'Info', detail: 'Login Failed. Please try again later.' }); 
+        setIsLoading(false);
+        toast.current.show({ severity: 'error', summary: 'Info', detail: 'Login Failed. Please try again later.' });
       }
     });
   };
@@ -92,8 +89,11 @@ const Login10 = () => {
   const resetPassword = () => {
     navigate('/reset-password');
   };
-  
 
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
 
   return (
     <html lang="en">
@@ -108,21 +108,18 @@ const Login10 = () => {
       <body className="img js-fullheight" style={{ backgroundImage: `url(${backgroundImage})` }}>
         <Toast ref={toast} />
         {isLoading && (
-      <div className="fullscreen-loader">
-        <ProgressSpinner />
-      </div>
-    )}
+          <div className="fullscreen-loader">
+            <ProgressSpinner />
+          </div>
+        )}
         <div className="text-right">
-              <button className="btn btn-primary submit px-1" onClick={goToUsageDocumentation}>
-                Read Usage Documentation
-              </button>
-            </div>
+          <button className="btn btn-primary submit px-1" onClick={goToUsageDocumentation}>
+            Read Usage Documentation
+          </button>
+        </div>
         {/* Header section */}
         <section className="ftco-section">
           <div className="container">
-            {/* Add the 'Read Usage Documentation' button */}
-            
-
             <div className="row justify-content-center">
               <div className="col-md-6 text-center mb-5">
                 <h2 className="heading-section">GLR REPORTING</h2>
@@ -146,20 +143,25 @@ const Login10 = () => {
                     <div className="form-group">
                       <input
                         id="password-field"
-                        type="password"
+                        type={passwordVisible ? 'text' : 'password'} // Toggle between text and password
                         className="form-control"
                         placeholder="Password"
                         required
                         onChange={updatePassword}
                       />
-                      <span className="fa fa-fw fa-eye field-icon toggle-password" toggle="#password-field"></span>
+                      <span
+                        className="fa fa-fw fa-eye field-icon toggle-password"
+                        onClick={togglePasswordVisibility} // Add click event handler
+                      ></span>
                     </div>
                     <div className="form-group">
                       <button type="submit" className="form-control btn btn-primary submit px-3" onClick={handleSubmit}>
                         Sign In
                       </button>
                     </div>
-                    <button type="submit" className="form-control btn btn-primary submit px-1" onClick={resetPassword}> Reset Password</button>
+                    <button type="submit" className="form-control btn btn-primary submit px-1" onClick={resetPassword}>
+                      Reset Password
+                    </button>
                   </form>
                 </div>
               </div>

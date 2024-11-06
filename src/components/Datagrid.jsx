@@ -115,7 +115,7 @@ const Datagrid = () => {
         const response = await fetch(
           `${import.meta.env.VITE_GLR_REPORTING_URL}/study`,
           {
-            method: 'GET', // Specify the method (default is GET)
+            method: 'POST', // Specify the method (default is GET)
             headers: headers, // Include the headers object
           }
         )

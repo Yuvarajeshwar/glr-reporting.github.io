@@ -10,14 +10,13 @@ const ResetPassword = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [tempPassword, setTempPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [passwordVisible, setPasswordVisible] = useState(false) // New state for password visibility
 
   const navigate = useNavigate()
   const toast = useRef(null)
 
   async function loginUserAndGetInfo(loginUrl, credentials) {
     try {
-      // Step 1: Login to get the token
       const loginResponse = await fetch(loginUrl, {
         method: 'POST',
         headers: {
@@ -30,7 +29,6 @@ const ResetPassword = () => {
         throw new Error('Reset Password Failed!.')
       }
 
-      // Step 2: Use the token to get user info
       toast.current.show({
         severity: 'success',
         summary: 'Info',
@@ -46,7 +44,6 @@ const ResetPassword = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    setIsLoading(true)
     const loginUrl = `${import.meta.env.VITE_GLR_CRM_URL}/user/reset-password`
     const credentials = {
       email: email,
@@ -61,7 +58,6 @@ const ResetPassword = () => {
           summary: 'Info',
           detail: 'Login successful.',
         })
-        setIsLoading(false)
         navigate('/')
       } else {
         toast.current.show({
@@ -69,7 +65,7 @@ const ResetPassword = () => {
           summary: 'Info',
           detail: 'Reset password failed. Please try again later.',
         })
-        setIsLoading(false)
+        
       }
     })
   }
@@ -88,6 +84,11 @@ const ResetPassword = () => {
 
   const goToUsageDocumentation = () => {
     navigate('/guide')
+  }
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible)
   }
 
   return (
@@ -124,8 +125,6 @@ const ResetPassword = () => {
         {/* Header section */}
         <section className="ftco-section">
           <div className="container">
-            {/* Add the 'Read Usage Documentation' button */}
-
             <div className="row justify-content-center">
               <div className="col-md-6 text-center mb-5">
                 <h2 className="heading-section">GLR REPORTING</h2>
@@ -133,11 +132,6 @@ const ResetPassword = () => {
               </div>
             </div>
             <Toast ref={toast} />
-            {isLoading && (
-              <div className="fullscreen-loader">
-                <ProgressSpinner />
-              </div>
-            )}
             <div className="row justify-content-center">
               <div className="col-md-6 col-lg-4">
                 <div className="login-wrap p-0">
@@ -163,7 +157,7 @@ const ResetPassword = () => {
                     <div className="form-group">
                       <input
                         id="password-field"
-                        type="password"
+                        type={passwordVisible ? 'text' : 'password'} // Toggle between text and password
                         className="form-control"
                         placeholder="Password"
                         required
@@ -171,7 +165,7 @@ const ResetPassword = () => {
                       />
                       <span
                         className="fa fa-fw fa-eye field-icon toggle-password"
-                        toggle="#password-field"
+                        onClick={togglePasswordVisibility} // Add click event handler
                       ></span>
                     </div>
                     <div className="form-group">
