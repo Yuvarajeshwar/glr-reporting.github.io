@@ -224,12 +224,12 @@ const Datagrid = () => {
 
     if (userInfo?.role) {
       sendData(data.study_number, datasent, department, type)
-        .then((response) => {
-          console.log(response)
-        })
-        .catch((error) => {
-          console.error('Error sending data:', error)
-        })
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => {
+        console.error('Error sending data:', error)
+      })
     } else {
       toast.current.show({
         severity: 'info',
@@ -280,6 +280,16 @@ const Datagrid = () => {
     setProducts([newRow, ...products])
   }
 
+  const handleCellEditingStopped = async (event) => {
+    const { data, colDef, newValue } = event;
+    data[colDef.field] = newValue; // Update the product's field with the new value
+    
+    gridApi.applyTransaction({ update: [data] });
+  };
+  
+  
+
+  
   const addRowAllowedRoles = import.meta.env.VITE_ADD_ROW_ALLOWED_ROLES.split(
     ','
   )
@@ -365,6 +375,7 @@ const Datagrid = () => {
             domLayout="normal"
             autoWidth={true}
             headerHeight={120}
+            onCellEditingStopped={handleCellEditingStopped}
             // headerHeight={50} // Optional: adjust header height if needed
             // rowClassRules={{
             //   'fixed-row': (params) => params.node.rowPinned, // Apply class for pinned row
