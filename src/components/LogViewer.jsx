@@ -25,19 +25,20 @@ const LogViewer = () => {
   }, [])
 
   const filteredLogs = logs.filter((log) => {
-    const logDate = new Date(log.timestamp)
-
+    const logDate = new Date(log.timestamp);
+  
     // Check if log level or message matches the filter
-    const matchesFilter =
-      log.level.includes(filter) || log.message.includes(filter)
-
+    const matchesFilter = (log?.level?.includes(filter) || 
+                           (typeof log.message === 'string' && log.message.includes(filter)));
+  
     // Check if log date falls within the specified date and time range
     const isWithinDateTimeRange =
       (!startDateTime || logDate >= new Date(startDateTime)) &&
-      (!endDateTime || logDate <= new Date(endDateTime))
-
-    return matchesFilter && isWithinDateTimeRange
-  })
+      (!endDateTime || logDate <= new Date(endDateTime));
+  
+    return matchesFilter && isWithinDateTimeRange;
+  });
+  
 
   return (
     <div className="log-viewer">
