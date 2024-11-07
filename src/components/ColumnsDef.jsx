@@ -122,7 +122,7 @@ export const columnsDefinition = [
   {
     field: 'qa_reviewer_alloted_by_qa',
     headerName: 'QA Reviewer alloted by QA',
-    type: 'dateString',
+    type: 'text',
     sortable: 'true',
     department: 'QA',
     editable: true,
