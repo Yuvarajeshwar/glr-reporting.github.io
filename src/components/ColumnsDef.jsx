@@ -40,6 +40,13 @@ export const columnsDefinition = [
     department: 'tico',
   },
   {
+    field: 'sample_id',
+    headerName: 'Sample Id',
+    type: 'text',
+    sortable: 'true',
+    department: 'tico',
+  },
+  {
     field: 'sample_received_dttm',
     headerName: 'Sample received on',
     type: 'dateString',
