@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom'
 import GLR from '../assets/GLR-1.png'
 import Login10 from '../../login-form-20'
 import { useNavigate } from 'react-router-dom'
+import { Messages } from 'primereact/messages';
 
 const dateFormatter = (params) => {
   if (!params.value) return ''
@@ -103,6 +104,9 @@ const Datagrid = () => {
 
   const { columnDefs, pinnedTopRowData } = transformColumns(columnsDefinition)
 
+  const msgs = useRef(null);
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -169,6 +173,19 @@ const Datagrid = () => {
         })
         return result
       } else {
+        
+        const dateFormatError = result.message && result.message.toLowerCase().includes('invalid date format')
+        if (dateFormatError) {
+          if(msgs.current) {
+          msgs.current.clear(); // Clear any previous messages
+          msgs.current.show([
+            { life: 8000, severity: 'error', summary: 'Info', detail: '- Accepted date format: dd MMM yyyy' },
+            { life: 8000, severity: 'error', summary: 'Info', detail: '- Accepted date format for multiple dates : dd MMM yyyy & dd MMM yyyy'},
+            { life: 8000, severity: 'error', summary: 'Info', detail: '- Timestamps are not allowed.' }
+        ]);
+      }
+        } 
+
         toast.current.show({
           severity: 'error',
           summary: 'Error',
@@ -301,6 +318,8 @@ const Datagrid = () => {
     <>
       <Toast ref={toast} />
 
+      
+
       <span className="button-container">
         <img src={GLR} alt="Logo" className="logo" />
 
@@ -352,6 +371,11 @@ const Datagrid = () => {
           data-pr-tooltip="Logout"
         />
       </span>
+
+          {/* Information Banner */}
+         <div className="card">
+            <Messages ref={msgs} />
+        </div>
 
       <div
         className="ag-theme-quartz"

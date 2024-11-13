@@ -213,3 +213,33 @@ search-container {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
   white-space: nowrap; /* Prevents text wrapping */
 }
+
+/* Information Banner Styles */
+.info-banner {
+  background-color: #e3f2fd; /* Light blue background */
+  padding: 15px;
+  color: #333;
+  font-size: 16px;
+  text-align: left; /* Align text to the left */
+  border-bottom: 2px solid #90caf9;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.info-points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.info-points li {
+  padding: 5px 10px;
+  font-weight: 500;
+  color: #1976d2;
+  border-bottom: 1px solid #90caf9; /* Add a line between points */
+}
+
+.info-points li:last-child {
+  border-bottom: none; /* Remove the last border */
+}
