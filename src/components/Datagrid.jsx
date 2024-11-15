@@ -10,7 +10,7 @@ import { useLocation } from 'react-router-dom'
 import GLR from '../assets/GLR-1.png'
 import Login10 from '../../login-form-20'
 import { useNavigate } from 'react-router-dom'
-import { Messages } from 'primereact/messages';
+import { Messages } from 'primereact/messages'
 
 const dateFormatter = (params) => {
   if (!params.value) return ''
@@ -29,6 +29,23 @@ const dateParser = (params) => {
   return new Date(year, monthIndex, day)
 }
 
+const CustomSwitch = ({ checked, onChange }) => {
+  return (
+    <div className="switch-container">
+      <label htmlFor="toggle">Show All Columns</label>
+      <label className="switch">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onChange}
+          id="toggle"
+        />
+        <span className="slider"></span>
+      </label>
+    </div>
+  )
+}
+
 const Datagrid = () => {
   const [products, setProducts] = useState([])
   const [gridApi, setGridApi] = useState(null)
@@ -39,14 +56,19 @@ const Datagrid = () => {
   const location = useLocation()
   const userInfo = location.state?.user
 
+  const [showAllColumns, setShowAllColumns] = useState(true)
+
+  const toggleColumnVisibility = () => {
+    setShowAllColumns((prevState) => !prevState)
+  }
+
   const editAllRoles = import.meta.env.VITE_EDIT_ALL_FIELDS_ROLES.split(',')
 
   const transformColumns = (columns) => {
-    const pinnedTopRowData = [{}] // Initialize pinned row data
-    // Define a function that returns the field based on conditions
+    const pinnedTopRowData = [{}]
+
     function getField(col) {
       if (!col || !col.department || !col.field) {
-        // Handle invalid input if necessary
         return null
       }
 
@@ -60,42 +82,51 @@ const Datagrid = () => {
         return `mailCommunication.${col.field}`
       }
 
-      // Default case for other departments
       return `${department}.${col.field}`
     }
 
     const columnDefs = columns
       .filter(
         (col) => userInfo?.role === 'accounts' || col.department !== 'accounts'
-      ) // Filter out accounts columns if user is not in accounts
+      )
       .map((col) => {
-        // Set department for pinned row based on field
-        pinnedTopRowData[0][col.field] = col.department || '' // Add department to pinned row data
         const isEditable =
           (col.field === 'archival_date' && userInfo?.role === 'archivist') ||
           col.department.toLowerCase() === userInfo?.role ||
           editAllRoles.includes(userInfo?.role)
 
+        let isVisible =
+          showAllColumns ||
+          userInfo?.role === 'tfm' ||
+          col.department.toLowerCase() === userInfo?.role ||
+          col.freeze === 'true'
+
         return {
           headerName:
             col.field !== 'archival_date'
               ? `${col.headerName} (${col.department.toUpperCase()})`
-              : `${col.headerName})`, // Pass department and headerName separated by '|'
-          field: getField(col), // Call the method to get the field value
+              : `${col.headerName})`,
+          field: getField(col),
           sortable: col.sortable === 'true',
           pinned: col.freeze === 'true' ? 'left' : null,
           editable: isEditable,
           filter: 'agTextColumnFilter',
-          cellEditor: 'agTextCellEditor',
+          cellEditor:
+            col.type === 'dropdown' ? 'agSelectCellEditor' : 'agTextCellEditor',
+          cellEditorParams:
+            col.type === 'dropdown'
+              ? { values: col.dropdownValues || [] }
+              : null,
           valueFormatter: col.type === 'date' ? dateFormatter : null,
           valueParser: col.type === 'date' ? dateParser : null,
           cellClass:
             col.department.toLowerCase() === userInfo?.role ||
             editAllRoles.includes(userInfo?.role)
               ? 'editable-cell'
-              : null, // Apply class for editable columns
-          headerTooltip: col.department.toUpperCase() || '', // Add department as tooltip
-          width: 200, // Allow the column to grow
+              : null,
+          headerTooltip: col.department.toUpperCase() || '',
+          width: 200,
+          hide: !isVisible,
         }
       })
 
@@ -104,8 +135,7 @@ const Datagrid = () => {
 
   const { columnDefs, pinnedTopRowData } = transformColumns(columnsDefinition)
 
-  const msgs = useRef(null);
-
+  const msgs = useRef(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -173,18 +203,35 @@ const Datagrid = () => {
         })
         return result
       } else {
-        
-        const dateFormatError = result.message && result.message.toLowerCase().includes('invalid date format')
+        const dateFormatError =
+          result.message &&
+          result.message.toLowerCase().includes('invalid date format')
         if (dateFormatError) {
-          if(msgs.current) {
-          msgs.current.clear(); // Clear any previous messages
-          msgs.current.show([
-            { life: 8000, severity: 'error', summary: 'Info', detail: '- Accepted date format: dd MMM yyyy' },
-            { life: 8000, severity: 'error', summary: 'Info', detail: '- Accepted date format for multiple dates : dd MMM yyyy & dd MMM yyyy'},
-            { life: 8000, severity: 'error', summary: 'Info', detail: '- Timestamps are not allowed.' }
-        ]);
-      }
-        } 
+          if (msgs.current) {
+            msgs.current.clear() // Clear any previous messages
+            msgs.current.show([
+              {
+                life: 8000,
+                severity: 'error',
+                summary: 'Info',
+                detail: '- Accepted date format: dd MMM yyyy',
+              },
+              {
+                life: 8000,
+                severity: 'error',
+                summary: 'Info',
+                detail:
+                  '- Accepted date format for multiple dates : dd MMM yyyy & dd MMM yyyy',
+              },
+              {
+                life: 8000,
+                severity: 'error',
+                summary: 'Info',
+                detail: '- Timestamps are not allowed.',
+              },
+            ])
+          }
+        }
 
         toast.current.show({
           severity: 'error',
@@ -241,12 +288,12 @@ const Datagrid = () => {
 
     if (userInfo?.role) {
       sendData(data.study_number, datasent, department, type)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((error) => {
-        console.error('Error sending data:', error)
-      })
+        .then((response) => {
+          console.log(response)
+        })
+        .catch((error) => {
+          console.error('Error sending data:', error)
+        })
     } else {
       toast.current.show({
         severity: 'info',
@@ -298,15 +345,12 @@ const Datagrid = () => {
   }
 
   const handleCellEditingStopped = async (event) => {
-    const { data, colDef, newValue } = event;
-    data[colDef.field] = newValue; // Update the product's field with the new value
-    
-    gridApi.applyTransaction({ update: [data] });
-  };
-  
-  
+    const { data, colDef, newValue } = event
+    data[colDef.field] = newValue // Update the product's field with the new value
 
-  
+    gridApi.applyTransaction({ update: [data] })
+  }
+
   const addRowAllowedRoles = import.meta.env.VITE_ADD_ROW_ALLOWED_ROLES.split(
     ','
   )
@@ -318,10 +362,9 @@ const Datagrid = () => {
     <>
       <Toast ref={toast} />
 
-      
-
       <span className="button-container">
         <img src={GLR} alt="Logo" className="logo" />
+        {/* Add the Switch for toggling columns */}
 
         {addRowAllowedRoles.includes(userInfo?.role) && (
           <Button
@@ -361,7 +404,14 @@ const Datagrid = () => {
             Welcome {userInfo.name}. Logged in as {userInfo.role.toUpperCase()}.
           </div>
         )}
-
+        {import.meta.env.VITE_VIEW_SHOW_ALL_COLUMN_TOGGLE === 'true' && (
+          <div className="column-toggle-switch">
+            <CustomSwitch
+              checked={showAllColumns}
+              onChange={toggleColumnVisibility}
+            />
+          </div>
+        )}
         <Button
           className="right-button"
           label="Logout"
@@ -372,10 +422,10 @@ const Datagrid = () => {
         />
       </span>
 
-          {/* Information Banner */}
-         <div className="card">
-            <Messages ref={msgs} />
-        </div>
+      {/* Information Banner */}
+      <div className="card">
+        <Messages ref={msgs} />
+      </div>
 
       <div
         className="ag-theme-quartz"

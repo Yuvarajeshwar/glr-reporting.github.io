@@ -65,7 +65,6 @@ const ResetPassword = () => {
           summary: 'Info',
           detail: 'Reset password failed. Please try again later.',
         })
-        
       }
     })
   }
