@@ -1,0 +1,278 @@
+@import 'bootstrap/bootstrap';
+@import 'bootstrap/variables';
+@import 'bootstrap/mixins';
+
+$font-primary: 'Lato', Arial, sans-serif;
+$primary: #fbceb5;
+$secondary: #6c757d; // Define a secondary color for consistency
+
+body {
+  font-family: $font-primary;
+  font-size: 16px;
+  line-height: 1.8;
+  font-weight: normal;
+  color: lighten($black, 50%);
+  position: relative;
+  z-index: 0;
+  padding: 0;
+  padding-top: 60px; // Added padding to avoid overlap with the button
+  
+  &:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    content: '';
+    background: $black;
+    opacity: .3;
+    z-index: -1;
+  }
+}
+
+a {
+  transition: .3s all ease;
+  color: $primary;
+  &:hover, &:focus {
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none;
+  }
+}
+
+h1, h2, h3, h4, h5,
+.h1, .h2, .h3, .h4, .h5 {
+  line-height: 1.5;
+  font-weight: 400;
+  font-family: $font-primary;
+  color: $black;
+}
+
+// Primary background color for elements
+.bg-primary {
+  background: $primary !important;
+}
+
+// Section styling
+.ftco-section {
+  padding: 7em 0;
+}
+
+// Heading section styling
+.heading-section {
+  font-size: 20px; // Increase font size for better visibility
+  color: $white;
+  margin-bottom: 1.5em; // Add some space below the heading
+}
+
+// Cover background image
+.img {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+// Login wrapper styling
+.login-wrap {
+  position: relative;
+  color: rgba(255, 255, 255, .9);
+  
+  h3 {
+    font-weight: 300;
+    color: $white;
+  }
+  
+  .social {
+    width: 100%;
+    
+    a {
+      width: 100%;
+      display: block;
+      border: 1px solid rgba(255, 255, 255, .4);
+      color: $black;
+      background: $white;
+      
+      &:hover {
+        background: $black;
+        color: $white;
+        border-color: $black;
+      }
+    }
+  }
+}
+
+// Form group styling
+.form-group {
+  position: relative;
+}
+
+// Field icon positioning
+.field-icon {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, .9);
+}
+
+// Form control styling
+.form-control {
+  background: transparent;
+  border: none;
+  height: 50px;
+  color: rgba(255, 255, 255, 1) !important;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, .08);
+  border-radius: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+  @include transition(.3s);
+  
+  &::-webkit-input-placeholder { 
+    color: rgba(255, 255, 255, .8) !important;
+  }
+  
+  &::-moz-placeholder { 
+    color: rgba(255, 255, 255, .8) !important;
+  }
+  
+  &:-ms-input-placeholder { 
+    color: rgba(255, 255, 255, .8) !important;
+  }
+  
+  &:-moz-placeholder { 
+    color: rgba(255, 255, 255, .8) !important;
+  }
+  
+  &:hover, &:focus {
+    background: transparent;
+    outline: none;
+    box-shadow: none;
+    border-color: rgba(255, 255, 255, .4);
+  }
+  
+  &:focus {
+    border-color: rgba(255, 255, 255, .4);
+  }
+}
+
+// Textarea styling
+textarea.form-control {
+  height: inherit !important;
+}
+
+// Checkbox styling
+.checkbox-wrap {
+  display: block;
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.checkbox-wrap input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.checkmark:after {
+  content: "\f0c8";
+  font-family: "FontAwesome";
+  position: absolute;
+  color: rgba(255, 255, 255, .1);
+  font-size: 20px;
+  margin-top: -4px;
+  @include transition(.3s);
+}
+
+.checkbox-wrap input:checked ~ .checkmark:after {
+  display: block;
+  content: "\f14a";
+  font-family: "FontAwesome";
+  color: rgba(0, 0, 0, .2);
+}
+
+.checkbox-primary {
+  color: $primary;
+  input:checked ~ .checkmark:after {
+    color: $primary;
+  }
+}
+
+// Button styling
+.btn {
+  cursor: pointer;
+  @include border-radius(40px);
+  box-shadow: none !important;
+  font-size: 15px;
+  text-transform: uppercase;
+  
+  &:hover, &:active, &:focus {
+    outline: none;
+  }
+  
+  &.btn-primary {
+    background: $primary !important;
+    border: 1px solid $primary !important;
+    color: $black !important;
+    
+    &:hover {
+      border: 1px solid $primary;
+      background: transparent;
+      color: $primary;
+    }
+    
+    &.btn-outline-primary {
+      border: 1px solid $primary;
+      background: transparent;
+      color: $primary;
+      
+      &:hover {
+        border: 1px solid transparent;
+        background: $primary;
+        color: $white;
+      }
+    }
+  }
+}
+
+// Styling for the 'Read Usage Documentation' button
+.text-right {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.usage-button {
+  background-color: $secondary; // Use secondary color variable
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; // Smooth transition for hover effect
+}
+
+.usage-button:hover {
+  background-color: darken($secondary, 10%); // Darken the secondary color on hover
+  color: white;
+}
+
+// Container adjustment for button positioning
+.container {
+  position: relative;
+}

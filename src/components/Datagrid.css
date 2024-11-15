@@ -1,0 +1,310 @@
+/* Ensures that both headers and row data scroll together horizontally */
+
+/* Base styling for scrollable grid container */
+.ag-theme-quartz {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Ensures the header container and body viewport scroll together horizontally */
+.ag-theme-quartz .ag-body-viewport-wrapper,
+.ag-theme-quartz .ag-body-viewport {
+  overflow-x: auto; /* Horizontal scroll for header and data */
+  white-space: nowrap; /* Prevent wrapping of content */
+  width: 100%;
+}
+/* Apply horizontal scrolling to .ag-header-container and hide the scrollbar */
+.ag-theme-quartz .ag-header-container {
+  overflow-x: auto;
+  overflow-y: hidden; /* Hide vertical scrollbar if not needed */
+  white-space: nowrap; /* Prevent line breaks */
+  -ms-overflow-style: none; /* Hide scrollbar in Internet Explorer 10+ */
+  scrollbar-width: none; /* Hide scrollbar in Firefox */
+}
+
+/* Hide scrollbar in Chrome, Safari, Edge, and Opera */
+.ag-theme-quartz .ag-header-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Datagrid.css */
+/* Datagrid.css */
+.ag-theme-quartz .ag-header-cell {
+  white-space: normal; /* Allow text to wrap */
+  overflow: hidden; /* Prevent overflow */
+  text-align: center; /* Center text */
+  line-height: 1.5; /* Increase line height for better readability */
+  padding: 10px; /* Add padding for spacing */
+  min-height: 40px; /* Set a minimum height */
+}
+
+.ag-theme-quartz .ag-header-cell-text {
+  display: block; /* Allow block-level layout for wrapping */
+  text-align: center; /* Center text */
+  margin: 0; /* Remove default margin */
+}
+
+.ag-theme-quartz .ag-header {
+  height: auto; /* Allow header height to adjust automatically */
+}
+
+/* Add borders for grid cells */
+.ag-theme-quartz .ag-cell {
+  border: 1px solid #d9d9d9; /* Add border to each cell */
+}
+
+/* Adjust the z-index for the filter dropdown */
+.ag-theme-quartz .ag-filter-application {
+  z-index: 1000; /* Set a high z-index value */
+}
+
+/* Optional: Add border for header cells */
+.ag-theme-quartz .ag-header-cell {
+  border-bottom: 2px solid #d9d9d9; /* Thicker border for header */
+}
+
+/* Optional: Remove right border for the last cell in each row to avoid double borders */
+.ag-theme-quartz .ag-cell:last-child {
+  border-right: none; /* Remove right border from last cell */
+}
+
+/* Optional: Remove bottom border from the last row to avoid double borders */
+.ag-theme-quartz .ag-row:last-child .ag-cell {
+  border-bottom: none; /* Remove bottom border from last row */
+}
+
+/* Styling for the header cells to remain sticky and visible */
+.ag-theme-quartz .ag-header-container {
+  position: sticky;
+  top: 0;
+  /* z-index: 10; Ensure headers are above data rows */
+  background-color: #fff; /* Background color for better visibility */
+  border-bottom: 1px solid #ccc; /* Optional: Distinguish header row */
+}
+
+/* Body horizontal scroll styling */
+.ag-body-horizontal-scroll {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background-color: #fff; /* Optional: Background for better visibility */
+  border-top: 1px solid #ccc; /* Optional: Border for visual separation */
+}
+
+/* Wrapper to ensure alignment of header and viewport for horizontal scrolling */
+.ag-theme-quartz .ag-header,
+.ag-theme-quartz .ag-body-viewport-wrapper {
+  display: flex;
+  overflow-x: auto;
+}
+
+.ag-theme-quartz .ag-body-viewport {
+  display: flex;
+  width: 100%;
+  white-space: nowrap;
+}
+
+/* Disable vertical scrolling on the browser window */
+body,
+html {
+  overflow-y: hidden;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Adjusts z-index for any frozen or sticky elements */
+.p-datatable-frozen-view {
+  z-index: 2;
+}
+.p-datatable-scrollable-view {
+  z-index: 1;
+}
+
+search-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  padding: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown {
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  border-right: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+}
+
+.search-input {
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  flex: 1;
+  outline: none;
+}
+
+.search-button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 10px;
+  outline: none;
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.editable-cell {
+  background-color: #e0f7fa; /* Light cyan color for editable cells */
+}
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between items */
+  padding: 20px;
+  background-color: #1f1f1f;
+}
+
+.logo {
+  max-width: 200px; /* Set a maximum width for the image */
+  max-height: 1000px; /* Set a maximum height for the image */
+  margin-right: 10px; /* Space between image and button */
+  /* object-fit: contain; Ensure the image scales properly without distortion */
+}
+
+.left-button {
+  margin-left: 10px; /* Space between the "Add New Row" button and the image */
+}
+
+.right-button {
+  margin-left: auto; /* Pushes the button to the right */
+}
+
+.fixed-row {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.welcome-box {
+  background-color: #f0f0f0; /* Light gray background */
+  padding: 10px 15px; /* Padding around the text */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 5px; /* Rounded corners */
+  margin-left: auto; /* Pushes the message box to the right */
+  font-weight: bold; /* Make it bold */
+  color: #333; /* Text color */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+  white-space: nowrap; /* Prevents text wrapping */
+}
+
+/* Information Banner Styles */
+.info-banner {
+  background-color: #e3f2fd; /* Light blue background */
+  padding: 15px;
+  color: #333;
+  font-size: 16px;
+  text-align: left; /* Align text to the left */
+  border-bottom: 2px solid #90caf9;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.info-points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.info-points li {
+  padding: 5px 10px;
+  font-weight: 500;
+  color: #1976d2;
+  border-bottom: 1px solid #90caf9; /* Add a line between points */
+}
+
+.info-points li:last-child {
+  border-bottom: none; /* Remove the last border */
+}
+
+.column-toggle-switch {
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.right-button {
+  margin-left: 10px;
+}
+
+.center-button {
+  margin-right: 10px;
+}

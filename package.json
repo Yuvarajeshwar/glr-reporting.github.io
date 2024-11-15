@@ -1,0 +1,49 @@
+{
+  "name": "glr-reporting",
+  "private": true,
+  "version": "1.0.1",
+  "type": "module",
+  "homepage": ".",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "lint": "eslint src/components/*.{js,jsx}",
+    "prettier": "prettier --write 'src/**/*.{js,jsx,json,css,md}'",
+    "lint:fix": "eslint src/**/*.{js,jsx} --fix",
+    "format": "npm run lint:fix && npm run prettier"
+  },
+  "dependencies": {
+    "ag-grid-community": "^32.1.0",
+    "ag-grid-react": "^32.1.0",
+    "date-fns": "^3.6.0",
+    "lodash": "^4.17.21",
+    "primeflex": "^3.3.1",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.6.4",
+    "react": "^18.2.0",
+    "react-data-grid": "^7.0.0-beta.46",
+    "react-dom": "^18.2.0",
+    "react-final-form": "^6.5.9",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.23.1",
+    "vite": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "gh-pages": "^6.0.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3"
+  }
+}
