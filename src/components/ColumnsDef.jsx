@@ -157,8 +157,8 @@ export const columnsDefinition = [
       'Ms. Mowriya S',
       'Ms. Cynthia Puspha',
       'Mr. Kiruthivasan K',
-      'Ms. Sivaselvi D',
-      ' Ms. Jayashree C',
+      'Dr. Sivaselvi D',
+      'Ms. Jayashree C',
       'Ms. Deepa G',
     ],
   },
@@ -173,9 +173,16 @@ export const columnsDefinition = [
   {
     field: 'study_plan_prepared_by',
     headerName: 'Study plan prepared by',
-    type: 'text',
+    type: 'dropdown',
     sortable: 'true',
     department: 'EDP',
+    dropdownValues: [
+      'Ms. Roghini M',
+      'Ms. Kotteshwari P',
+      'Ms. Sandhiya V',
+      'Mr. Dillibabu V',
+      'Mr. Vasudevan M',
+    ],
   },
   {
     field: 'study_plan_to_sd',
