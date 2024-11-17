@@ -358,6 +358,45 @@ const Datagrid = () => {
   const viewExportCsvOption =
     import.meta.env?.VITE_VIEW_EXPORT_CSV_ROLES.split(',') ?? null
 
+    const copyToClipboard = () => {
+      const selectedNodes = gridApi.getSelectedNodes(); // Get selected rows
+      const selectedData = selectedNodes.map((node) => node.data); // Extract row data
+    
+    function flattenObject(obj, prefix = '') {
+        return Object.entries(obj).reduce((acc, [key, value]) => {
+            const prefixedKey = prefix ? `${prefix}.${key}` : key;
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                Object.assign(acc, flattenObject(value, prefixedKey));
+            } else {
+                acc[prefixedKey] = value;
+            }
+            return acc;
+        }, {});
+    }
+    
+    function jsonToExcel(data) {
+        const rows = Array.isArray(data) ? data : [data];
+        const flatRows = rows.map(row => flattenObject(row));
+    
+        // Create headers
+        const headers = Object.keys(flatRows.reduce((acc, row) => ({ ...acc, ...row }), {}));
+        const tsv = [
+            headers.join('\t'), // Header row
+            ...flatRows.map(row => headers.map(header => row[header] || '').join('\t')) // Data rows
+        ].join('\n');
+    
+        return tsv;
+    }
+    
+      const tsvData = jsonToExcel(selectedData);
+      navigator.clipboard.writeText(tsvData).then(() => {
+          console.log('Data copied to clipboard in Excel-compatible format!');
+      }).catch(err => {
+          console.error('Could not copy data:', err);
+      });
+    };
+  
+
   return (
     <>
       <Toast ref={toast} />
@@ -412,6 +451,9 @@ const Datagrid = () => {
             />
           </div>
         )}
+        {import.meta.env.VITE_ALLOW_ROW_COPY === 'true' && (
+        <Button label="Copy Selected Rows" onClick={copyToClipboard} />
+        )}
         <Button
           className="right-button"
           label="Logout"
@@ -437,7 +479,16 @@ const Datagrid = () => {
       >
         {userInfo ? (
           <AgGridReact
-            columnDefs={columnDefs}
+          columnDefs={[
+            {
+              headerCheckboxSelection: true, // Show checkbox in the header for selecting all rows
+              checkboxSelection: true, // Show checkbox in each row
+              headerName: '', // Empty header for checkbox column
+              width: 50, // Adjust width of checkbox column
+              pinned: 'left', // Optional: Pin the checkbox column to the left
+            },
+            ...columnDefs, // Spread your other column definitions
+          ]}
             rowData={products}
             pagination={true}
             paginationPageSize={50}
@@ -450,6 +501,11 @@ const Datagrid = () => {
             autoWidth={true}
             headerHeight={120}
             onCellEditingStopped={handleCellEditingStopped}
+            rowSelection="multiple" // Enable multiple row selection
+            enableClipboard={true} // Enable clipboard functionality
+            suppressCopyRowsToClipboard={false} // Include full rows in clipboard
+            rowMultiSelectWithClick={true} // Allow multi-row selection with Ctrl+Click
+            suppressRowClickSelection={false} // Enable row click selection
             // headerHeight={50} // Optional: adjust header height if needed
             // rowClassRules={{
             //   'fixed-row': (params) => params.node.rowPinned, // Apply class for pinned row
