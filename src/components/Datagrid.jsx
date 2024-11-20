@@ -57,6 +57,37 @@ const Datagrid = () => {
   const userInfo = location.state?.user
 
   const [showAllColumns, setShowAllColumns] = useState(true)
+  const lastInteractionTime = useRef(Date.now()) // Store the last interaction timestamp
+  const INACTIVITY_THRESHOLD = 300000 // 5 minutes in milliseconds
+
+  // Function to handle user interaction
+  const handleUserInteraction = () => {
+    const now = Date.now()
+    const timeSinceLastInteraction = now - lastInteractionTime.current
+
+    // If the user was inactive for more than the threshold, refresh the page
+    if (timeSinceLastInteraction > INACTIVITY_THRESHOLD) {
+      window.location.reload()
+    } else {
+      lastInteractionTime.current = now // Update the last interaction time
+    }
+  }
+
+  useEffect(() => {
+    const events = ['mousemove', 'keydown', 'scroll', 'click']
+
+    // Attach event listeners for user interaction
+    events.forEach((event) =>
+      window.addEventListener(event, handleUserInteraction)
+    )
+
+    return () => {
+      // Clean up event listeners on component unmount
+      events.forEach((event) =>
+        window.removeEventListener(event, handleUserInteraction)
+      )
+    }
+  }, [])
 
   const toggleColumnVisibility = () => {
     setShowAllColumns((prevState) => !prevState)
