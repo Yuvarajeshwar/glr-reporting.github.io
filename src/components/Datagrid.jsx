@@ -380,6 +380,9 @@ const Datagrid = () => {
     data[colDef.field] = newValue // Update the product's field with the new value
 
     gridApi.applyTransaction({ update: [data] })
+    if(colDef.field === 'study_number') {
+      window.location.reload()
+    }
   }
 
   const addRowAllowedRoles = import.meta.env.VITE_ADD_ROW_ALLOWED_ROLES.split(
